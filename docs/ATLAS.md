@@ -5,7 +5,7 @@ The primary path for handling user queries and generating responses.
 
 * **User** → **Atlas**
 * **Intent Detection:** (LLM + System Prompt) branches into three potential paths:
-    1.  **DB Query Path:** Tool Router (Decide tool type) → MongoDB Tools (Structured).
+    1.  **DB Query Path:** Tool Router (Decide tool type) → PostgreSQL Tools (Structured).
     2.  **Hybrid:** Combines both Structured and Unstructured data.
     3.  **Knowledge Brain Path:** Query To Embedding → Vector Search (Top K Chunk).
 * **Context Builder:** Aggregates data from the paths above.
@@ -58,14 +58,14 @@ graph TD
         Bot --> Intent[Intent Detection<br/>LLM + System Prompt]
         
         Intent --> TR[Tool Router]
-        TR --> Mongo[MongoDB Tools<br/>Structured]
+        TR --> Postgre[PostgreSQL Tools<br/>Structured]
         
         Intent --> Hybrid[Hybrid<br/>Both]
         
         Intent --> QEmbed[Query To Embedding]
         QEmbed --> VSearch[Vector Search<br/>Top K Chunk]
         
-        Mongo --> CB[Context Builder]
+        Postgre --> CB[Context Builder]
         Hybrid --> CB
         VSearch --> CB
         

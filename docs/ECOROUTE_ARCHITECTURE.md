@@ -6,40 +6,46 @@
 
 ## 1. High-Level Architecture Overview
 
-The system is built using a **Microservices Architecture** to ensure scalability and fault tolerance.
+The system is built as a **Unified FastAPI Backend** to ensure high performance, developer efficiency, and seamless AI integration.
 
 ```mermaid
 graph TD
     %% Clients
-    User((Dispatcher / Admin)) --> Gateway[API Gateway / Auth]
+    User((Dispatcher / Admin)) --> Gateway[API Gateway / Load Balancer]
     IoT((IoT Sensors / Fleet)) --> Gateway
     
-    %% Core Services
-    Gateway --> AuthSvc[Auth Service<br/>Node.js / JWT]
-    Gateway --> LogisticSvc[Logistics Service<br/>Go / NestJS]
-    Gateway --> ComplianceSvc[Compliance & AI Service<br/>Python / FastAPI]
+    %% Unified Backend
+    Gateway --> AtlasSvc[Atlas Unified Backend<br/>Python / FastAPI]
+    
+    %% Domain Logic inside Atlas
+    subgraph Atlas_Modules [Atlas Modules]
+        Auth[Auth & IAM]
+        Logistics[Logistics & Fleet]
+        Compliance[Compliance & AI]
+        Sustainability[Sustainability]
+    end
+    
+    AtlasSvc --> Atlas_Modules
     
     %% Storage
-    AuthSvc --> UserDB[(User DB<br/>MongoDB)]
-    LogisticSvc --> ShipDB[(Shipment DB<br/>MongoDB)]
-    ComplianceSvc --> Qdrant[(Atlas Intelligence<br/>Qdrant)]
+    Atlas_Modules --> Postgre[(Operational DB<br/>PostgreSQL)]
+    Atlas_Modules --> Qdrant[(Atlas Intelligence<br/>Qdrant)]
     
     %% Communication & Monitoring
-    LogisticSvc <--> Bus[Event Bus<br/>Redis / RabbitMQ]
-    ComplianceSvc <--> Bus
+    Atlas_Modules <--> Redis[Cache / Event Bus<br/>Redis]
     
     %% External
-    ComplianceSvc --> ExtAPI[Customs / Regs APIs]
+    Atlas_Modules --> ExtAPI[Customs / Regs APIs]
 ```
 
 ---
 
 ## 2. Database Schema (Production-Grade)
 
-### 2.1 MongoDB: Structured Data
+### 2.1 PostgreSQL: Structured Data
 Stored in the `ecoroute_core` database.
 
-#### **Collection: `shipments`**
+#### **Table: `shipments`**
 ```json
 {
   "_id": "uuid",
@@ -55,7 +61,7 @@ Stored in the `ecoroute_core` database.
 }
 ```
 
-#### **Collection: `fleet_units`**
+#### **Table: `fleet_units`**
 ```json
 {
   "_id": "uuid",
@@ -89,7 +95,7 @@ The `Atlas` AI is the **Intelligence Layer** of the system.
 ### **Key Pipelines:**
 1.  **Direct Inference (The "Hybrid" Path):**
     *   *User Query:* "What are the current hazmat shipping restrictions for Singapore?"
-    *   *Atlas Action:* Queries **MongoDB** for specific product specs + **Qdrant** for Singapore's latest legislation → Synthesizes an answer.
+    *   *Atlas Action:* Queries **PostgreSQL** for specific product specs + **Qdrant** for Singapore's latest legislation → Synthesizes an answer.
 2.  **Learning Pipeline:**
     *   *Input:* New trade agreement PDFs uploaded by admins.
     *   *Atlas Action:* Extracts patterns, chunks the text, and updates the **Atlas Intelligence**.

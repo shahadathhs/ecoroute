@@ -4,7 +4,7 @@
 * **Model Consistency:** Embedding model consistency is critical; embeddings break if the model changes.
 * **Migration:** Always re-embed all existing entries when changing the embedding provider.
 * **Versioning:** Always store the embedding model version in metadata for safety.
-* **Separation of Concerns:** Vector DB (Qdrant) is fully separate from the structured data (MongoDB).
+* **Separation of Concerns:** Vector DB (Qdrant) is fully separate from the structured data (PostgreSQL).
 * **Definitions:**
     * **Embedding** = Vector generation.
     * **Vector** = Numeric representation of text.
@@ -62,11 +62,11 @@ graph LR
 
 ## Summary Table: DB Comparison
 
-| Feature | MongoDB (Structured) | Qdrant (Vector DB) |
+| Feature | PostgreSQL (Structured) | Qdrant (Vector DB) |
 | :--- | :--- | :--- |
 | **Purpose** | CRM/Logistics data | Semantic search, Atlas Intelligence |
-| **Data Type** | Structured JSON | Embeddings + Metadata |
-| **Search Method** | Exact match / RegEx | Cosine Similarity / Euclidean |
+| **Data Type** | Structured (JSONB support) | Embeddings + Metadata |
+| **Search Method** | SQL / Indexing | Cosine Similarity / Euclidean |
 | **Maintenance** | Schema updates | Cron Refinement / Re-embedding |
 
 ---
