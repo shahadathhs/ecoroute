@@ -95,3 +95,6 @@ dmypy.json
 
 # Alembic
 alembic/versions/*.pyc
+
+# Virtual environment
+ecoroute_venv
