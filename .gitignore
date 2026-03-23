@@ -98,3 +98,5 @@ alembic/versions/*.pyc
 
 # Virtual environment
 ecoroute_venv
+
+.ruff_cache

@@ -1,9 +1,9 @@
 """
 Base Response Schemas
 """
+
 from typing import Any, Generic, TypeVar, Optional
 from pydantic import BaseModel, Field
-
 
 T = TypeVar("T")
 
@@ -15,7 +15,9 @@ class MetaData(BaseModel):
     page: Optional[int] = Field(None, description="Current page number")
     page_size: Optional[int] = Field(None, description="Items per page")
     has_next: Optional[bool] = Field(None, description="Whether there's a next page")
-    has_prev: Optional[bool] = Field(None, description="Whether there's a previous page")
+    has_prev: Optional[bool] = Field(
+        None, description="Whether there's a previous page"
+    )
 
 
 class BaseResponse(BaseModel):
@@ -53,7 +55,9 @@ class ErrorResponse(BaseModel):
     success: bool = Field(False, description="Always false for errors")
     message: str = Field(..., description="Error message")
     errors: Optional[list[Any]] = Field(None, description="Detailed error list")
-    details: Optional[dict[str, Any]] = Field(None, description="Additional error details")
+    details: Optional[dict[str, Any]] = Field(
+        None, description="Additional error details"
+    )
 
 
 class PaginatedResponse(BaseModel, Generic[T]):

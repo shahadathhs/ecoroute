@@ -1,6 +1,7 @@
 """
 Logging Configuration Module
 """
+
 import sys
 from pathlib import Path
 from loguru import logger as _logger
@@ -50,11 +51,11 @@ def setup_logger() -> None:
             try:
                 level = _logger.level(record.levelname).name
             except ValueError:
-                level = record.levelno
+                level = str(record.levelno)
 
             frame, depth = logging.currentframe(), 2
-            while frame.f_code.co_filename == logging.__file__:
-                frame = frame.f_back
+            while frame and frame.f_code.co_filename == logging.__file__:
+                frame = frame.f_back  # type: ignore
                 depth += 1
 
             _logger.opt(depth=depth, exception=record.exc_info).log(

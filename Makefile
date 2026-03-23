@@ -105,7 +105,7 @@ db-shell: ## Open database shell
 ## Docker
 docker-build: ## Build Docker image
 	@echo -e "$(BLUE)Building Docker image...$(NC)"
-	docker build -t $(DOCKER_IMAGE) .
+	docker builder build -t $(DOCKER_IMAGE) .
 
 docker-infra: ## Start Docker infrastructure containers (DB, Qdrant)
 	@echo -e "$(BLUE)Starting Docker infrastructure...$(NC)"
@@ -126,11 +126,17 @@ docker-logs: ## Show Docker logs
 clean: ## Clean up generated files
 	@echo -e "$(BLUE)Cleaning up...$(NC)"
 	@find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+	@find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
+	@find . -type d -name ".ruff_cache" -exec rm -rf {} + 2>/dev/null || true
+	@find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null || true
 	@find . -type f -name "*.pyc" -delete
 	@find . -type f -name "*.pyo" -delete
 	@find . -type f -name "*.pyd" -delete
-	@rm -rf .mypy_cache/ .ruff_cache/
+	@find . -type f -name ".coverage" -delete
+	@rm -rf build/ dist/ *.egg-info/ htmlcov/
 	@rm -rf logs/*.log.*
+	@rm -rf $(VENV)
+	@rm -rf logs
 	@echo -e "$(GREEN)✓ Cleanup complete$(NC)"
 
 shell: ## Open Python shell with app context

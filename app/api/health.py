@@ -1,6 +1,7 @@
 """
 Health Check Routes
 """
+
 from fastapi import APIRouter
 
 from app.schemas.health import HealthResponse, LivenessResponse, ReadinessResponse

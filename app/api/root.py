@@ -1,6 +1,7 @@
 """
 Root API Routes
 """
+
 from fastapi import APIRouter
 
 from app.schemas.root import PingResponse, RootResponse

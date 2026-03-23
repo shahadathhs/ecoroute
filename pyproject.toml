@@ -24,5 +24,8 @@ dependencies = [
     "python-dotenv",
     "loguru",
     "python-json-logger",
-    "httpx"
+    "httpx",
+    "ruff",
+    "black",
+    "mypy"
 ]

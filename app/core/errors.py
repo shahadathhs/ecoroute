@@ -1,6 +1,7 @@
 """
 Error Handlers and Custom Exceptions
 """
+
 from typing import Any, Dict
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
@@ -62,9 +63,7 @@ class ForbiddenException(AppException):
         super().__init__(message, status.HTTP_403_FORBIDDEN, details)
 
 
-async def app_exception_handler(
-    request: Request, exc: AppException
-) -> JSONResponse:
+async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
     """Handle application exceptions."""
     logger.error(
         f"AppException: {exc.message}",
@@ -157,9 +156,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
         content={
             "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
             "success": False,
-            "message": "Internal server error"
-            if not settings.debug
-            else str(exc),
+            "message": "Internal server error" if not settings.debug else str(exc),
             "data": None,
             "errors": None,
         },

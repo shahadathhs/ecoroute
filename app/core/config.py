@@ -1,10 +1,11 @@
 """
 Application Configuration Module
 """
+
 from typing import List
 from functools import lru_cache
 
-from pydantic import field_validator, Field, AnyUrl
+from pydantic import field_validator, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 

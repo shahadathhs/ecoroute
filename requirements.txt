@@ -64,3 +64,8 @@ PyYAML==6.0.3
 # Utilities
 click==8.3.1
 six==1.17.0
+
+# Development & Code Quality
+ruff
+black
+mypy

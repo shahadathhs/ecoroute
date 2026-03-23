@@ -1,7 +1,8 @@
 """
 Response Builder - Reusable Response Creation Helpers
 """
-from typing import Any, Generic, Optional, TypeVar
+
+from typing import Any, Optional, TypeVar
 from fastapi import status
 from app.schemas.base import DataResponse, ErrorResponse, PaginatedResponse, MetaData
 
@@ -60,6 +61,7 @@ class ResponseBuilder:
             success=True,
             message=message,
             data=None,
+            metadata=None,
         )
 
     @staticmethod

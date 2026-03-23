@@ -1,6 +1,7 @@
 """
 Health Check Schemas
 """
+
 from pydantic import BaseModel
 from app.schemas.base import DataResponse
 

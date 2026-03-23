@@ -1,6 +1,7 @@
 """
 Main Application Entry Point
 """
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +30,7 @@ async def lifespan(app: FastAPI):
 
     # Initialize database
     from app.db.session import init_db
+
     await init_db()
     logger.info("Database initialized")
 
@@ -36,6 +38,7 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     from app.db.session import close_db
+
     await close_db()
     logger.info(f"Shutting down {settings.app_name}")
 
@@ -65,10 +68,10 @@ def create_app() -> FastAPI:
     )
 
     # Exception handlers
-    app.add_exception_handler(AppException, app_exception_handler)
-    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(Exception, general_exception_handler)
+    app.add_exception_handler(AppException, app_exception_handler)  # type: ignore
+    app.add_exception_handler(StarletteHTTPException, http_exception_handler)  # type: ignore
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)  # type: ignore
+    app.add_exception_handler(Exception, general_exception_handler)  # type: ignore
 
     # Include routers
     app.include_router(root.router)

@@ -1,6 +1,7 @@
 """
 Health Check Service
 """
+
 from fastapi import status
 from app.core.config import settings
 from app.core.response import ResponseBuilder
