@@ -16,7 +16,7 @@ RUN apt-get update \
 RUN pip install --no-cache-dir uv
 
 # Copy project files
-COPY pyproject.toml .
+COPY pyproject.toml README.md ./
 
 # Install dependencies using uv
 RUN uv sync --no-dev

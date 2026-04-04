@@ -41,7 +41,7 @@ dev-verbose: ## Run in development mode with verbose logging
 	$(PYTHON_BIN) -m uvicorn app.main:app --reload --log-level debug
 
 prod: ## Run in production mode
-	$(PYTHON_BIN) -m uvicorn app.main:app --host 0.0.0.0 --port $${PORT:-8000} --workers $${WORKERS:-4}
+	$(PYTHON_BIN) -m uvicorn app.main:app --host 0.0.0.0 --port $${PORT:-8000} --workers 4
 
 # =============================================================================
 # CODE QUALITY
@@ -102,16 +102,9 @@ docker-logs: ## Show Docker logs
 # UTILITIES
 # =============================================================================
 clean: ## Clean up generated files
-	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".pytest_cache" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".ruff_cache" -exec rm -rf {} + 2>/dev/null || true
-	find . -type d -name ".mypy_cache" -exec rm -rf {} + 2>/dev/null || true
-	find . -type f -name "*.pyc" -delete
-	find . -type f -name "*.pyo" -delete
-	find . -type f -name "*.pyd" -delete
-	find . -type f -name ".coverage" -delete
-	rm -rf build/ dist/ *.egg-info/ htmlcov/
-	rm -rf logs/*.log.* .venv .uv logs uv.lock
+	find . -type d \( -name "__pycache__" -o -name ".pytest_cache" -o -name ".ruff_cache" -o -name ".mypy_cache" \) -exec rm -rf {} + 2>/dev/null || true
+	find . -type f \( -name "*.pyc" -o -name "*.pyo" -o -name "*.pyd" -o -name ".coverage" \) -delete 2>/dev/null || true
+	rm -rf build/ dist/ *.egg-info/ htmlcov/ logs/ .venv/ .uv/ uv.lock
 
 shell: ## Open Python shell with app context
 	$(PYTHON_BIN) -i -c "from app.main import app; from app.core.config import settings; print('App loaded!')"

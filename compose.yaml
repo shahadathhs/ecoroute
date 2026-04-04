@@ -13,21 +13,21 @@ services:
 
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
-      - QDRANT_COLLECTION=${QDRANT_COLLECTION:atlas_intelligence}
+      - QDRANT_COLLECTION=${QDRANT_COLLECTION:-atlas_intelligence}
     depends_on:
       db:
         condition: service_healthy
       qdrant:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1"]
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/docs || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     volumes:
       - .:/app
-    command: ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command: [ "uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload" ]
 
   db:
     image: postgres:17-alpine
@@ -42,7 +42,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=${PACKAGE_NAME}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d ${PACKAGE_NAME}"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ${PACKAGE_NAME}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -50,16 +50,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.17.1
     profiles:
       - infra
       - prod
     container_name: ${PACKAGE_NAME}-qdrant
     ports:
-      - "127.0.0.1:6333:6333"
-      - "127.0.0.1:6334:6334"
+      - "127.0.0.1:6343:6333"
+      - "127.0.0.1:6344:6334"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:6333/readyz || curl -f http://localhost:6333/readyz || exit 1"]
+      test: ["CMD-SHELL", "timeout 5s bash -c ':> /dev/tcp/127.0.0.1/6333' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5

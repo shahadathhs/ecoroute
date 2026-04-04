@@ -25,15 +25,15 @@ def setup_logger() -> None:
     )
 
     # File handler
-    log_path = Path(settings.log_file_path)
+    log_path = Path("logs/app.log")
     log_path.parent.mkdir(parents=True, exist_ok=True)
 
     _logger.add(
-        settings.log_file_path,
+        "logs/app.log",
         level=settings.log_level,
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-        rotation=settings.log_rotation,
-        retention=settings.log_retention,
+        rotation="500 MB",
+        retention="10 days",
         compression="zip",
         backtrace=True,
         diagnose=settings.debug,
