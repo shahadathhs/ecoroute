@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "ecoroute"
@@ -29,3 +29,6 @@ dependencies = [
     "black",
     "mypy"
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

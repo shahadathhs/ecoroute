@@ -64,6 +64,7 @@ target/
 venv/
 ENV/
 env/
+.venv/
 
 # PyCharm
 .idea/
@@ -96,7 +97,9 @@ dmypy.json
 # Alembic
 alembic/versions/*.pyc
 
-# Virtual environment
-ecoroute_venv
+# uv
+.uv
+uv.lock
 
+# Ruff
 .ruff_cache

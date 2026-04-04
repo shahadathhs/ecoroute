@@ -46,15 +46,18 @@ For the full production-grade endpoint specification, see the [API & RBAC Spec](
     ```bash
     git clone https://github.com/shahadathhs/ecoroute.git
     ```
-2.  **Environment Setup**:
+2.  **Install uv** (if not already installed):
     ```bash
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+    curl -LsSf https://astral.sh/uv/install.sh | sh
     ```
-3.  **Local Services**: Ensure PostgreSQL and Qdrant are running locally or reachable via network.
+3.  **Environment Setup**:
+    ```bash
+    make setup
+    ```
+    Or manually:
+    ```bash
+    uv venv
+    uv sync
+    ```
+4.  **Local Services**: Ensure PostgreSQL and Qdrant are running locally or reachable via network.
 
----
-
-## 📄 License
-MIT License - Copyright (c) 2026 EcoRoute Team
