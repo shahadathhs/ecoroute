@@ -8,7 +8,7 @@ VENV := .venv
 PYTHON_BIN := uv run python
 
 # Phony targets
-.PHONY: help setup venv install
+.PHONY: help setup venv install reset-venv
 .PHONY: dev dev-verbose prod
 .PHONY: lint lint-fix format format-check type-check check-all fix-all
 .PHONY: migrate-up migrate-down migration db-shell
@@ -24,12 +24,25 @@ help: ## Show this help message
 # SETUP
 # =============================================================================
 venv: ## Create virtual environment
-	uv venv --clear
+	@echo "Creating virtual environment..."
+	@rm -rf .venv 2>/dev/null || true
+	@uv venv
+	@echo "✓ Virtual environment created"
+
+reset-venv: ## Force reset virtual environment (fix permission issues)
+	@echo "Resetting virtual environment..."
+	@rm -rf .venv .uv uv.lock 2>/dev/null || true
+	@uv venv
+	@uv sync
+	@echo "✓ Virtual environment reset complete"
 
 install: ## Install dependencies
-	uv sync
+	@echo "Installing dependencies..."
+	@uv sync
+	@echo "✓ Dependencies installed"
 
 setup: venv install ## Full setup (venv + install)
+	@echo "✓ Setup complete!"
 
 # =============================================================================
 # RUNNING
