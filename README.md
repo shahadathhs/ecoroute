@@ -430,5 +430,5 @@ If you find this project useful, please consider giving it a star!
 
 ---
 
-**Author**: [Shahadath Hossen Sajib](https://github.com/shahadathhs)  
+**Author**: [Shahadath Hossen Sajib](https://github.com/shahadathhs)
 **Email**: shahadathhossensajib732@gmail.com
