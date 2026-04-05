@@ -8,7 +8,8 @@ VENV := .venv
 PYTHON_BIN := uv run python
 
 # Phony targets
-.PHONY: help setup venv install reset-venv
+.PHONY: help setup venv install reset-venv pre-commit-install pre-commit-run pre-commit-update
+.PHONY: bump-major bump-minor bump-patch build release
 .PHONY: dev dev-verbose prod
 .PHONY: lint lint-fix format format-check type-check check-all fix-all
 .PHONY: migrate-up migrate-down migration db-shell
@@ -43,6 +44,47 @@ install: ## Install dependencies
 
 setup: venv install ## Full setup (venv + install)
 	@echo "✓ Setup complete!"
+
+pre-commit-install: ## Install pre-commit hooks
+	@echo "Installing pre-commit hooks..."
+	@uv run pre-commit install
+	@echo "✓ Pre-commit hooks installed"
+
+pre-commit-run: ## Run all pre-commit hooks manually
+	@echo "Running pre-commit hooks..."
+	@uv run pre-commit run --all-files
+
+pre-commit-update: ## Update pre-commit hooks
+	@echo "Updating pre-commit hooks..."
+	@uv run pre-commit autoupdate
+	@echo "✓ Pre-commit hooks updated"
+
+# =============================================================================
+# VERSION MANAGEMENT
+# =============================================================================
+bump-major: ## Bump major version
+	@echo "Bumping major version..."
+	@uv run bump-my-version major
+	@echo "✓ Bumped to major version $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
+
+bump-minor: ## Bump minor version
+	@echo "Bumping minor version..."
+	@uv run bump-my-version minor
+	@echo "✓ Bumped to minor version $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
+
+bump-patch: ## Bump patch version
+	@echo "Bumping patch version..."
+	@uv run bump-my-version patch
+	@echo "✓ Bumped to patch version $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
+
+build: ## Build distribution packages
+	@echo "Building distribution packages..."
+	@uv run python -m build
+	@echo "✓ Built packages in dist/"
+
+release: bump-patch build ## Create patch release (bump + build)
+	@echo "✓ Release $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2) ready"
+	@echo "Run 'git push --tags' to publish"
 
 # =============================================================================
 # RUNNING

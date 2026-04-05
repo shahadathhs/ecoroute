@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/shahadathhs/ecoroute/discussions
+    about: Use GitHub Discussions for questions, ideas, or general discussion.
+  - name: Security Vulnerability
+    url: mailto:support@ecoroute.com
+    about: For security issues, please email us directly instead of opening a public issue.
