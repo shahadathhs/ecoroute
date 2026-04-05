@@ -1,7 +1,7 @@
 # EcoRoute Atlas - AI Development Guide
 
-**Version**: 1.0.0  
-**Last Updated**: 2026-04-05  
+**Version**: 1.0.0
+**Last Updated**: 2026-04-05
 **Framework**: FastAPI 0.135.3, Python 3.14+
 
 ---
@@ -172,11 +172,11 @@ async def create_user(
     db: AsyncSession
 ) -> User:
     """Create a new user.
-    
+
     Args:
         user_data: User creation data
         db: Database session
-        
+
     Returns:
         Created user instance
     """
@@ -297,10 +297,10 @@ async def create_user_with_profile(
         user = User(**user_data.dict())
         db.add(user)
         await db.flush()  # Get ID without committing
-        
+
         profile = UserProfile(user_id=user.id)
         db.add(profile)
-        
+
     return user
 ```
 
@@ -385,19 +385,19 @@ docker compose --profile prod up -d
 ```python
 def complex_function(param1: str, param2: int) -> dict:
     """Brief description of function.
-    
+
     Longer description if needed. Explain the why, not just the what.
-    
+
     Args:
         param1: Description of param1
         param2: Description of param2
-        
+
     Returns:
         Description of return value
-        
+
     Raises:
         ValueError: If param1 is invalid
-        
+
     Example:
         >>> result = complex_function("test", 42)
         >>> print(result)

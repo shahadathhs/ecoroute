@@ -16,10 +16,10 @@ router = APIRouter(
                 "application/json": {
                     "example": {
                         "status": "healthy",
-                        "timestamp": "2026-04-04T22:00:00Z"
+                        "timestamp": "2026-04-04T22:00:00Z",
                     }
                 }
-            }
+            },
         },
         503: {
             "description": "Service Unavailable",
@@ -27,12 +27,12 @@ router = APIRouter(
                 "application/json": {
                     "example": {
                         "status": "unhealthy",
-                        "error": "Database connection failed"
+                        "error": "Database connection failed",
                     }
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 )
 service = HealthService()
 
@@ -41,7 +41,7 @@ service = HealthService()
     "/health",
     response_model=HealthResponse,
     summary="Complete Health Check",
-    description="Returns the overall health status of the application including database and service dependencies. Use this endpoint for comprehensive health monitoring."
+    description="Returns the overall health status of the application including database and service dependencies. Use this endpoint for comprehensive health monitoring.",
 )
 async def health_check() -> HealthResponse:
     """
@@ -85,7 +85,7 @@ async def health_check() -> HealthResponse:
     "/health/live",
     response_model=LivenessResponse,
     summary="Liveness Probe",
-    description="Kubernetes liveness probe - checks if the container is still running. Returns HTTP 200 if the container is alive. Does not check external dependencies."
+    description="Kubernetes liveness probe - checks if the container is still running. Returns HTTP 200 if the container is alive. Does not check external dependencies.",
 )
 async def liveness() -> LivenessResponse:
     """
@@ -124,7 +124,7 @@ async def liveness() -> LivenessResponse:
     "/health/ready",
     response_model=ReadinessResponse,
     summary="Readiness Probe",
-    description="Kubernetes readiness probe - checks if the container is ready to serve traffic. Verifies database and external service connections before returning healthy status."
+    description="Kubernetes readiness probe - checks if the container is ready to serve traffic. Verifies database and external service connections before returning healthy status.",
 )
 async def readiness() -> ReadinessResponse:
     """

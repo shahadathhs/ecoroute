@@ -58,16 +58,19 @@ class Settings(BaseSettings):
     @classmethod
     def parse_cors_origins(cls, v: str | List[str]) -> List[str]:
         """Parse CORS origins from string or list."""
-        if isinstance(v, str):
-            # Handle both comma-separated and JSON-like formats
-            if v.startswith("["):
-                # JSON-like format: ["http://...", "http://..."]
-                import json
-                return json.loads(v)
-            else:
-                # Comma-separated format
-                return [origin.strip() for origin in v.split(",")]
-        return v
+        if isinstance(v, list):
+            return v
+
+        # v is a string at this point
+        if v.startswith("["):
+            # JSON-like format: ["http://...", "http://..."]
+            import json
+
+            parsed: List[str] = json.loads(v)
+            return parsed
+        else:
+            # Comma-separated format
+            return [origin.strip() for origin in v.split(",")]
 
     @property
     def is_dev(self) -> bool:

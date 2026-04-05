@@ -56,23 +56,23 @@ graph TD
     subgraph New_Flow [New Flow]
         User((User)) --> Bot[Atlas]
         Bot --> Intent[Intent Detection<br/>LLM + System Prompt]
-        
+
         Intent --> TR[Tool Router]
         TR --> Postgre[PostgreSQL Tools<br/>Structured]
-        
+
         Intent --> Hybrid[Hybrid<br/>Both]
-        
+
         Intent --> QEmbed[Query To Embedding]
         QEmbed --> VSearch[Vector Search<br/>Top K Chunk]
-        
+
         Postgre --> CB[Context Builder]
         Hybrid --> CB
         VSearch --> CB
-        
+
         CB --> LLM1[LLM]
         LLM1 --> Resp[Response]
         Resp --> Store[Stored In DB<br/>Q and A together]
-        
+
         Store --> UserResp([Response to User])
         Store --> LP_Link([Learning Pipeline])
     end

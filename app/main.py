@@ -96,38 +96,32 @@ All endpoints return JSON responses with the following structure:
         openapi_url="/openapi.json",
         lifespan=lifespan,
         servers=[
-            {
-                "url": "http://localhost:8000",
-                "description": "Development server"
-            },
-            {
-                "url": "https://api.ecoroute.com",
-                "description": "Production server"
-            }
+            {"url": "http://localhost:8000", "description": "Development server"},
+            {"url": "https://api.ecoroute.com", "description": "Production server"},
         ],
         tags=[
             {
                 "name": "Root",
-                "description": "Basic system endpoints for API information and health checks."
+                "description": "Basic system endpoints for API information and health checks.",
             },
             {
                 "name": "Health",
-                "description": "Health monitoring and system status endpoints."
+                "description": "Health monitoring and system status endpoints.",
             },
             {
                 "name": "Documentation",
-                "description": "Documentation viewers and API reference hubs."
-            }
+                "description": "Documentation viewers and API reference hubs.",
+            },
         ],
         contact={
             "name": "EcoRoute Team",
             "url": "https://github.com/shahadathhs/ecoroute",
-            "email": "support@ecoroute.com"
+            "email": "support@ecoroute.com",
         },
         license_info={
             "name": "MIT License",
-            "url": "https://opensource.org/licenses/MIT"
-        }
+            "url": "https://opensource.org/licenses/MIT",
+        },
     )
 
     # Setup logger

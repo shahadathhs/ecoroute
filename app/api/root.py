@@ -17,12 +17,12 @@ router = APIRouter(
                     "example": {
                         "app_name": "EcoRoute Atlas",
                         "version": "1.0.0",
-                        "status": "running"
+                        "status": "running",
                     }
                 }
-            }
+            },
         }
-    }
+    },
 )
 service = RootService()
 
@@ -31,7 +31,7 @@ service = RootService()
     "/",
     response_model=RootResponse,
     summary="API Root Information",
-    description="Returns basic information about the API including name, version, and available documentation links. Use this endpoint to verify the API is running and get quick access to documentation."
+    description="Returns basic information about the API including name, version, and available documentation links. Use this endpoint to verify the API is running and get quick access to documentation.",
 )
 async def root() -> RootResponse:
     """
@@ -66,7 +66,7 @@ async def root() -> RootResponse:
     "/ping",
     response_model=PingResponse,
     summary="Health Check Ping",
-    description="Simple health check endpoint that returns 'pong'. Use this for basic connectivity testing and monitoring. This endpoint does not check database or other service dependencies."
+    description="Simple health check endpoint that returns 'pong'. Use this for basic connectivity testing and monitoring. This endpoint does not check database or other service dependencies.",
 )
 async def ping() -> PingResponse:
     """

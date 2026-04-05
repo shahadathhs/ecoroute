@@ -179,13 +179,19 @@ list: ## List installed dependencies
 add: ## Add a new package (use PKG=name)
 	uv add $(PKG)
 
+add-dev: ## Add a new dev package (use PKG=name)
+	uv add --dev $(PKG)
+
 remove: ## Remove a package (use PKG=name)
 	uv remove $(PKG)
 
 # =============================================================================
 # CI/CD
 # =============================================================================
-ci: lint type-check ## Run CI pipeline checks
+security: ## Run security scan with bandit
+	@uv run bandit -r app/ -f screen -v
+
+ci: pre-commit-run security build ## Run CI pipeline checks
 
 # =============================================================================
 # INFO

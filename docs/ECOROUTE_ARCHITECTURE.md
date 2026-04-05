@@ -13,10 +13,10 @@ graph TD
     %% Clients
     User((Dispatcher / Admin)) --> Gateway[API Gateway / Load Balancer]
     IoT((IoT Sensors / Fleet)) --> Gateway
-    
+
     %% Unified Backend
     Gateway --> AtlasSvc[Atlas Unified Backend<br/>Python / FastAPI]
-    
+
     %% Domain Logic inside Atlas
     subgraph Atlas_Modules [Atlas Modules]
         Auth[Auth & IAM]
@@ -24,16 +24,16 @@ graph TD
         Compliance[Compliance & AI]
         Sustainability[Sustainability]
     end
-    
+
     AtlasSvc --> Atlas_Modules
-    
+
     %% Storage
     Atlas_Modules --> Postgre[(Operational DB<br/>PostgreSQL)]
     Atlas_Modules --> Qdrant[(Atlas Intelligence<br/>Qdrant)]
-    
+
     %% Communication & Monitoring
     Atlas_Modules <--> Redis[Cache / Event Bus<br/>Redis]
-    
+
     %% External
     Atlas_Modules --> ExtAPI[Customs / Regs APIs]
 ```

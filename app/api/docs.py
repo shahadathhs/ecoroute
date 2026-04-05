@@ -10,13 +10,9 @@ router = APIRouter(
     responses={
         200: {
             "description": "Documentation page",
-            "content": {
-                "text/html": {
-                    "example": "<!DOCTYPE html>..."
-                }
-            }
+            "content": {"text/html": {"example": "<!DOCTYPE html>..."}},
         }
-    }
+    },
 )
 
 
@@ -24,7 +20,7 @@ router = APIRouter(
     "/rapidoc",
     response_class=HTMLResponse,
     summary="RapiDoc Documentation Viewer",
-    description="Modern, responsive API documentation viewer with beautiful UI and excellent mobile support. Provides interactive API exploration with a cleaner interface than traditional Swagger UI."
+    description="Modern, responsive API documentation viewer with beautiful UI and excellent mobile support. Provides interactive API exploration with a cleaner interface than traditional Swagger UI.",
 )
 async def rapidoc() -> str:
     """
@@ -98,7 +94,7 @@ async def rapidoc() -> str:
     "/docs-hub",
     response_class=HTMLResponse,
     summary="Documentation Hub",
-    description="Landing page for choosing your preferred API documentation viewer. Compare RapiDoc, Swagger UI, and ReDoc side by side and choose the one that fits your needs."
+    description="Landing page for choosing your preferred API documentation viewer. Compare RapiDoc, Swagger UI, and ReDoc side by side and choose the one that fits your needs.",
 )
 async def docs_hub() -> str:
     """
