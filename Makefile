@@ -9,8 +9,7 @@ PYTHON_BIN := uv run python
 
 # Phony targets
 .PHONY: help setup venv install reset-venv pre-commit-install pre-commit-run pre-commit-update
-.PHONY: bump-major bump-minor bump-patch build release
-.PHONY: dev dev-verbose prod
+.PHONY: build dev dev-verbose prod release-dry-run release-changelog
 .PHONY: lint lint-fix format format-check type-check check-all fix-all
 .PHONY: migrate-up migrate-down migration db-shell
 .PHONY: docker-build docker-infra docker-prod docker-down docker-logs
@@ -60,35 +59,13 @@ pre-commit-update: ## Update pre-commit hooks
 	@echo "✓ Pre-commit hooks updated"
 
 # =============================================================================
-# VERSION MANAGEMENT
+# RUNNING
 # =============================================================================
-bump-major: ## Bump major version
-	@echo "Bumping major version..."
-	@uv run bump-my-version major
-	@echo "✓ Bumped to major version $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
-
-bump-minor: ## Bump minor version
-	@echo "Bumping minor version..."
-	@uv run bump-my-version minor
-	@echo "✓ Bumped to minor version $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
-
-bump-patch: ## Bump patch version
-	@echo "Bumping patch version..."
-	@uv run bump-my-version patch
-	@echo "✓ Bumped to patch version $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
-
 build: ## Build distribution packages
 	@echo "Building distribution packages..."
 	@uv run python -m build
 	@echo "✓ Built packages in dist/"
 
-release: bump-patch build ## Create patch release (bump + build)
-	@echo "✓ Release $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2) ready"
-	@echo "Run 'git push --tags' to publish"
-
-# =============================================================================
-# RUNNING
-# =============================================================================
 dev: ## Run in development mode with hot reload
 	$(PYTHON_BIN) -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
@@ -98,56 +75,83 @@ dev-verbose: ## Run in development mode with verbose logging
 prod: ## Run in production mode
 	$(PYTHON_BIN) -m uvicorn app.main:app --host 0.0.0.0 --port $${PORT:-8000} --workers 4
 
+release-dry-run: ## Preview release without publishing (semantic-release)
+	@echo "Previewing release..."
+	@uv run semantic-release version --no-commit --no-tag
+
+release-changelog: ## Generate changelog only (semantic-release)
+	@echo "Generating changelog..."
+	@uv run semantic-release changelog
+
 # =============================================================================
+
 # CODE QUALITY
 # =============================================================================
 lint: ## Run linter (ruff)
+	@echo "Running linter..."
 	$(PYTHON_BIN) -m ruff check app/
+	@echo "✓ Linting complete"
 
 lint-fix: ## Fix linting issues automatically
+	@echo "Fixing linting issues..."
 	$(PYTHON_BIN) -m ruff check --fix app/
 
 format: ## Format code with black
+	@echo "Formatting code..."
 	$(PYTHON_BIN) -m black app/
+	@echo "✓ Code formatted"
 
 format-check: ## Check if code needs formatting
+	@echo "Checking code formatting..."
 	$(PYTHON_BIN) -m black --check app/
 
 type-check: ## Run type checker (mypy)
+	@echo "Running type checks..."
 	$(PYTHON_BIN) -m mypy app/
 
 check-all: lint type-check ## Run all quality checks
+	@echo "Running all quality checks..."
 
 fix-all: lint-fix format ## Fix all auto-fixable issues
+	@echo "Fixing all auto-fixable issues..."
 
 # =============================================================================
 # DATABASE
 # =============================================================================
 migrate-up: ## Run database migrations
+	@echo "Running database migrations..."
 	$(PYTHON_BIN) -m alembic upgrade head
+	@echo "✓ Migrations applied"
 
 migrate-down: ## Rollback database migrations
+	@echo "Rolling back migrations..."
 	$(PYTHON_BIN) -m alembic downgrade -1
 
 migration: ## Create new migration (use NAME=name)
+	@echo "Creating migration: $(NAME)..."
 	$(PYTHON_BIN) -m alembic revision --autogenerate -m "$(NAME)"
 
 db-shell: ## Open database shell
+	@echo "Opening database shell..."
 	psql $${DATABASE_URL}
 
 # =============================================================================
 # DOCKER
 # =============================================================================
 docker-build: ## Build Docker image
+	@echo "Building Docker image..."
 	docker builder build -t $(DOCKER_IMAGE) .
 
 docker-infra: ## Start Docker infrastructure containers (DB, Qdrant)
+	@echo "Starting infrastructure containers..."
 	docker compose --profile infra up -d
 
 docker-prod: ## Start full Docker production stack
+	@echo "Starting production stack..."
 	docker compose --profile prod up -d
 
 docker-down: ## Stop Docker containers
+	@echo "Stopping Docker containers..."
 	docker compose --profile prod down
 
 docker-logs: ## Show Docker logs
@@ -157,41 +161,54 @@ docker-logs: ## Show Docker logs
 # UTILITIES
 # =============================================================================
 clean: ## Clean up generated files
+	@echo "Cleaning up generated files..."
 	find . -type d \( -name "__pycache__" -o -name ".pytest_cache" -o -name ".ruff_cache" -o -name ".mypy_cache" \) -exec rm -rf {} + 2>/dev/null || true
 	find . -type f \( -name "*.pyc" -o -name "*.pyo" -o -name "*.pyd" -o -name ".coverage" \) -delete 2>/dev/null || true
 	rm -rf build/ dist/ *.egg-info/ htmlcov/ logs/ .venv/ .uv/ uv.lock
+	@echo "✓ Cleanup complete"
 
 shell: ## Open Python shell with app context
+	@echo "Loading Python shell..."
 	$(PYTHON_BIN) -i -c "from app.main import app; from app.core.config import settings; print('App loaded!')"
 
 logs: ## Show application logs
 	@tail -f logs/app.log 2>/dev/null || echo "No log file found"
 
 update: ## Update dependencies
+	@echo "Updating dependencies..."
 	uv sync --upgrade
 
 freeze: ## Update lock file
+	@echo "Updating lock file..."
 	uv lock
 
 list: ## List installed dependencies
 	uv pip list
 
 add: ## Add a new package (use PKG=name)
+	@echo "Adding package: $(PKG)..."$
 	uv add $(PKG)
 
 add-dev: ## Add a new dev package (use PKG=name)
+	@echo "Adding dev package: $(PKG)..."
+	@echo "Adding dev package: $(PKG)..."$
 	uv add --dev $(PKG)
 
 remove: ## Remove a package (use PKG=name)
+	@echo "Removing package: $(PKG)..."
+	@echo "Removing package: $(PKG)..."$
 	uv remove $(PKG)
 
 # =============================================================================
 # CI/CD
 # =============================================================================
 security: ## Run security scan with bandit
+	@echo "Running security scan..."
 	@uv run bandit -r app/ -f screen -v
+	@echo "✓ Security scan complete"
 
 ci: pre-commit-run security build ## Run CI pipeline checks
+	@echo "Running CI pipeline..."
 
 # =============================================================================
 # INFO

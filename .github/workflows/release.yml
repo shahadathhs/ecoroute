@@ -2,19 +2,22 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
-    name: Create Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -26,16 +29,32 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Clean project
+        run: make clean
+
+      - name: Install dependencies
+        run: make install
+
+      - name: Run pre-commit hooks
+        run: make pre-commit-run
+
+      - name: Run security scan
+        run: make security
+
       - name: Build package
         run: make build
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: dist/*
-          generate_release_notes: true
-          draft: false
-          prerelease: false
-          title: Release ${{ github.ref_name }}
+      - name: Run semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions
+          GIT_AUTHOR_EMAIL: actions@github.com
+          GIT_COMMITTER_NAME: github-actions
+          GIT_COMMITTER_EMAIL: actions@github.com
+        run: |
+          semantic-release publish \
+            --tag \
+            --changelog \
+            --push \
+            --version_control=github \
+            --commit
