@@ -53,7 +53,7 @@ dev = [
 ]
 
 [tool.semantic_release]
-version_source = "commit"
+version_source = "tag"
 version_variables = [
     "app/__init__.py:__version__",
 ]
@@ -64,4 +64,3 @@ build_command = "uv run python -m build"
 upload_to_pypi = false
 remove_dist = false
 commit_author = "github-actions <actions@github.com>"
-major_on_zero = true

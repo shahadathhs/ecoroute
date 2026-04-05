@@ -85,7 +85,7 @@ release-changelog: ## Generate changelog only (semantic-release)
 
 release-publish: ## Publish release (semantic-release - used by CI)
 	@echo "Publishing release..."
-	@uv run semantic-release publish
+	@uv run semantic-release version --vcs-release
 
 # =============================================================================
 
