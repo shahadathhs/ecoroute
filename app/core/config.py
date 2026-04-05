@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     api_prefix: str = Field(default="/api", description="API prefix")
 
     # Server
+    host: str = Field(default="127.0.0.1", description="Server host")
     port: int = Field(default=8000, description="Server port")
 
     # Database
