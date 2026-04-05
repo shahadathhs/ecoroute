@@ -53,7 +53,7 @@ dev = [
 ]
 
 [tool.semantic_release]
-version_source = "commit"
+version_source = "tag"
 version_variables = [
     "app/__init__.py:__version__",
 ]
