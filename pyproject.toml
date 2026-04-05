@@ -65,3 +65,4 @@ upload_to_pypi = false
 remove_dist = false
 commit_author = "github-actions <actions@github.com>"
 major_on_zero = true
+commit_parser = "angular"
