@@ -85,7 +85,7 @@ release-changelog: ## Generate changelog only (semantic-release)
 
 release-publish: ## Publish release (semantic-release - used by CI)
 	@echo "Publishing release..."
-	@uv run semantic-release publish --tag --changelog --version_control=github --commit
+	@uv run semantic-release publish --tag --changelog --commit
 
 # =============================================================================
 
