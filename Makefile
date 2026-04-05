@@ -9,7 +9,7 @@ PYTHON_BIN := uv run python
 
 # Phony targets
 .PHONY: help setup venv install reset-venv pre-commit-install pre-commit-run pre-commit-update
-.PHONY: build dev dev-verbose prod release-dry-run release-changelog
+.PHONY: build dev dev-verbose prod release-dry-run release-changelog release-publish
 .PHONY: lint lint-fix format format-check type-check check-all fix-all
 .PHONY: migrate-up migrate-down migration db-shell
 .PHONY: docker-build docker-infra docker-prod docker-down docker-logs
@@ -82,6 +82,10 @@ release-dry-run: ## Preview release without publishing (semantic-release)
 release-changelog: ## Generate changelog only (semantic-release)
 	@echo "Generating changelog..."
 	@uv run semantic-release changelog
+
+release-publish: ## Publish release (semantic-release - used by CI)
+	@echo "Publishing release..."
+	@uv run semantic-release publish --tag --changelog --push --version_control=github --commit
 
 # =============================================================================
 
