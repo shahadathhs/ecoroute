@@ -2,6 +2,7 @@
 Root API Service
 """
 
+import sys
 from fastapi import status
 from app.core.config import settings
 from app.core.response import ResponseBuilder
@@ -43,5 +44,25 @@ class RootService:
         return ResponseBuilder.success(
             data=PingData(ping="pong"),
             message="Pong successfully",
+            status_code=status.HTTP_200_OK,
+        )
+
+    @staticmethod
+    def get_system_info():
+        """
+        Get system information.
+
+        Returns:
+            DataResponse: System information response
+        """
+        return ResponseBuilder.success(
+            data={
+                "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
+                "environment": settings.environment,
+                "debug": settings.debug,
+                "app_version": settings.app_version,
+                "app_name": settings.app_name,
+            },
+            message="System information retrieved successfully",
             status_code=status.HTTP_200_OK,
         )

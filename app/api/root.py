@@ -93,3 +93,36 @@ async def ping() -> PingResponse:
     - Quick API availability verification
     """
     return service.ping()
+
+
+@router.get(
+    "/system",
+    summary="System Information",
+    description="Returns detailed system information including Python version, environment, and configuration. Useful for debugging and monitoring.",
+)
+async def system_info():
+    """
+    System Information Endpoint
+
+    Provides detailed system information including:
+    - Python version
+    - Application environment
+    - Debug mode status
+    - API version
+
+    **Example Request:**
+    ```bash
+    curl http://localhost:8000/system
+    ```
+
+    **Example Response:**
+    ```json
+    {
+      "python_version": "3.14.0",
+      "environment": "development",
+      "debug": true,
+      "app_version": "1.0.0"
+    }
+    ```
+    """
+    return service.get_system_info()
