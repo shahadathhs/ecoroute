@@ -8,6 +8,12 @@ description = "EcoRoute Atlas API"
 readme = "README.md"
 requires-python = ">=3.14"
 dynamic = ["version"]
+authors = [
+    {name = "Shahadath Hossen Sajib", email = "shahadathhossensajib732@gmail.com"}
+]
+maintainers = [
+    {name = "Shahadath Hossen Sajib", email = "shahadathhossensajib732@gmail.com"}
+]
 
 dependencies = [
     "email-validator==2.3.0",
@@ -47,7 +53,7 @@ dev = [
 ]
 
 [tool.semantic_release]
-version_source = "tag"
+version_source = "commit"
 version_variables = [
     "app/__init__.py:__version__",
 ]

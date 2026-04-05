@@ -31,7 +31,7 @@
 
 ---
 
-## 🌟 Core Modules
+## Core Modules
 - **Identity & Access Management (IAM)**: Advanced RBAC with multi-tenancy support for global logistics organizations.
 - **Intelligent Compliance (Atlas AI)**: LLM-powered regulatory assistant using RAG (Retrieval-Augmented Generation) for real-time legal audits.
 - **Dynamic Sustainability Tracking**: Automated CO2 footprint calculation based on route telemetry and vehicle health.
@@ -39,7 +39,7 @@
 
 ---
 
-## 🏗️ Technical Architecture
+## Technical Architecture
 The system is designed as a high-performance **FastAPI** application with a focus on asynchronous processing and modularity.
 
 - **Stack**: Python 3.14+, FastAPI, Pydantic (v2), SQLAlchemy/asyncpg.
@@ -50,7 +50,7 @@ The system is designed as a high-performance **FastAPI** application with a focu
 
 ---
 
-## 🚀 API & RBAC Specification
+## API & RBAC Specification
 The system implements a detailed Role-Based Access Control model across 7 distinct user roles:
 - `Super Admin`, `Company Admin`, `Logistics Manager`, `Compliance Officer`, `Sustainability Lead`, `Standard Dispatcher`, `Driver`.
 
@@ -58,7 +58,7 @@ For the full production-grade endpoint specification, see the [API & RBAC Spec](
 
 ---
 
-## 📚 Documentation
+## Documentation
 - [AI System Architecture (ATLAS.md)](./docs/ATLAS.md)
 - [Vector Flow Documentation (ATLAS_INTEL_FLOW.md)](./docs/ATLAS_INTEL_FLOW.md)
 - [Production Architecture (ECOROUTE_ARCHITECTURE.md)](./docs/ECOROUTE_ARCHITECTURE.md)
@@ -68,7 +68,7 @@ For the full production-grade endpoint specification, see the [API & RBAC Spec](
 
 ---
 
-## 🛠️ Local Development Setup
+## Local Development Setup
 
 This project uses **uv** for fast package management and **Docker** for infrastructure services.
 
@@ -80,7 +80,7 @@ This project uses **uv** for fast package management and **Docker** for infrastr
 
 ### Step 1: Install uv
 
-If you don't have uv installed:
+Install uv if you don't have it already:
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
@@ -131,7 +131,7 @@ The API will be available at:
 
 ---
 
-## 🔄 Automated Releases
+## Automated Releases
 
 This project uses **python-semantic-release** for fully automated versioning and releases. No manual version bumping required!
 
@@ -187,7 +187,7 @@ make release-publish
 
 ---
 
-## 📋 Available Make Commands
+## Available Make Commands
 
 ```bash
 # Setup
@@ -251,7 +251,7 @@ make info               # Show project information
 
 ---
 
-## 📝 Development Workflow
+## Development Workflow
 
 ### 1. Feature Development
 
@@ -272,7 +272,7 @@ git commit -m "feat: add new feature for user management"
 # Push to main to trigger release
 git push origin feature/new-feature
 # Create PR, merge to main
-# 🎉 Automatic release!
+# Automatic release!
 ```
 
 ### 2. Bug Fix
@@ -322,7 +322,7 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:8000
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Port already in use?
 ```bash
@@ -366,7 +366,7 @@ make release-dry-run
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 
 ```
 ecoroute/
@@ -388,46 +388,47 @@ ecoroute/
 
 ---
 
-## 🔐 Security
+## Security
 
-- ✅ Automated security scanning with Bandit
-- ✅ Pre-commit hooks for code quality
-- ✅ Type checking with mypy
-- ✅ Linting and formatting enforcement
-- ✅ Host configurable (default: localhost only)
-- ✅ CORS configuration for API access
+- Automated security scanning with Bandit
+- Pre-commit hooks for code quality
+- Type checking with mypy
+- Linting and formatting enforcement
+- Host configurable (default: localhost only)
+- CORS configuration for API access
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started.
 
-- 📖 Read [CONTRIBUTING.md](CONTRIBUTING.md) for development setup
-- 🔐 Review [SECURITY.md](SECURITY.md) for vulnerability reporting
-- 📋 Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community guidelines
+- Read [CONTRIBUTING.md](CONTRIBUTING.md) for development setup
+- Review [SECURITY.md](SECURITY.md) for vulnerability reporting
+- Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for community guidelines
 
 ---
 
-## 📞 Support
+## Support
 
-- 🐛 **Bug Reports**: Open an issue on GitHub
-- 💡 **Feature Requests**: Open an issue with the "enhancement" label
-- ❓ **Questions**: Use GitHub Discussions
-- 🔐 **Security Issues**: Email security@ecoroute.com
-
----
-
-## ⭐ Star History
-
-If you find this project useful, please consider giving it a star! ⭐
+- **Bug Reports**: Open an issue on GitHub
+- **Feature Requests**: Open an issue with the "enhancement" label
+- **Questions**: Use GitHub Discussions
+- **Security Issues**: Email shahadathhossensajib732@gmail.com
 
 ---
 
-**Built with ❤️ by the EcoRoute Team**
+## Star History
+
+If you find this project useful, please consider giving it a star!
+
+---
+
+**Author**: [Shahadath Hossen Sajib](https://github.com/shahadathhs)  
+**Email**: shahadathhossensajib732@gmail.com
