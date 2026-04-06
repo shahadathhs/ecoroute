@@ -10,7 +10,7 @@ If you discover a security vulnerability, please **do not open a public issue**.
 
 ### How to Report
 
-**Send an email to:** security@ecoroute.com
+**Send an email to:** shahadathhossensajib732@gmail.com
 
 Please include:
 - Description of the vulnerability
