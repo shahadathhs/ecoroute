@@ -1,0 +1,65 @@
+name: Update Dependencies
+
+on:
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Update type'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - direct
+          - dev
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install UV
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Update dependencies
+        run: |
+          case "${{ inputs.update_type }}" in
+            all)
+              echo "Updating all dependencies to flexible versions..."
+              sed -i 's/"\([a-zA-Z0-9-]*\)==\([0-9.]*\)"/"\1>=\2"/g' pyproject.toml
+              ;;
+            direct)
+              echo "Updating only direct dependencies to flexible versions..."
+              sed -i '/^\s*"/s/"\([a-zA-Z0-9-]*\)==\([0-9.]*\)"/"\1>=\2"/g' pyproject.toml
+              ;;
+            dev)
+              echo "Updating dev dependencies to flexible versions..."
+              sed -i '/^\[dependency-groups\]/,/^\[/s/"\([a-zA-Z0-9-]*\)==\([0-9.]*\)"/"\1>=\2"/g' pyproject.toml
+              ;;
+          esac
+
+      - name: Update lock file
+        run: |
+          uv lock --upgrade
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: update-dependencies
+          title: "chore: update dependencies"
+          body: |
+            Automated dependency update
+
+            - Updated all pinned versions (`==`) to flexible versions (`>=`)
+            - Regenerated lock file with latest compatible versions
+            - **Review the changes before merging**
+          commit-message: "chore: update dependencies to latest versions"
+          labels: dependencies, automated
