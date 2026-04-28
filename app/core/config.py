@@ -46,6 +46,32 @@ class Settings(BaseSettings):
     # Security
     secret_key: str = Field(default="change-me", description="Secret key for JWT")
 
+    # JWT Configuration
+    jwt_secret_key: str = Field(
+        default="your-jwt-secret-key-change-in-production",
+        description="JWT secret key"
+    )
+    jwt_algorithm: str = Field(default="HS256", description="JWT algorithm")
+    jwt_access_token_expire_minutes: int = Field(
+        default=30,
+        description="JWT access token expiration time in minutes"
+    )
+    jwt_refresh_token_expire_days: int = Field(
+        default=7,
+        description="JWT refresh token expiration time in days"
+    )
+
+    # Password Policy
+    password_min_length: int = Field(default=8, description="Minimum password length")
+    password_require_uppercase: bool = Field(
+        default=True,
+        description="Require uppercase letters in password"
+    )
+    password_require_numbers: bool = Field(
+        default=True,
+        description="Require numbers in password"
+    )
+
     # CORS
     cors_origins: str | List[str] = Field(
         default="http://localhost:3000,http://localhost:8000",
