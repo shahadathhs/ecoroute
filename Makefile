@@ -13,7 +13,7 @@ PYTHON_BIN := uv run python
 .PHONY: lint lint-fix format format-check type-check check-all fix-all
 .PHONY: migrate-up migrate-down migration db-shell
 .PHONY: docker-build docker-infra docker-prod docker-down docker-logs
-.PHONY: clean shell logs update freeze list add remove ci info
+.PHONY: clean shell logs sync update upgrade-all-pinned freeze list outdated check compile export why tree add remove ci info
 
 .DEFAULT_GOAL := help
 
@@ -178,9 +178,22 @@ shell: ## Open Python shell with app context
 logs: ## Show application logs
 	@tail -f logs/app.log 2>/dev/null || echo "No log file found"
 
-update: ## Update dependencies
-	@echo "Updating dependencies..."
-	uv sync --upgrade
+sync: ## Sync dependencies to lock file
+	@echo "Syncing dependencies..."
+	uv sync
+	@echo "✓ Dependencies synced"
+
+update: ## Update lock file within pyproject.toml constraints
+	@echo "Updating lock file (within current version constraints)..."
+	uv lock --upgrade
+	uv sync
+	@echo "✓ Lock file updated"
+
+upgrade-all-pinned: ## Convert all pinned versions (==) to flexible versions (>=)
+	@echo "Converting pinned versions to flexible versions..."
+	@sed -i 's/"\([a-zA-Z0-9-]*\)==\([0-9.]*\)"/"\1>=\2"/g' pyproject.toml
+	@echo "✓ Converted == to >= in pyproject.toml"
+	@echo "Run 'make update' to upgrade to latest versions"
 
 freeze: ## Update lock file
 	@echo "Updating lock file..."
@@ -190,18 +203,40 @@ list: ## List installed dependencies
 	uv pip list
 
 add: ## Add a new package (use PKG=name)
-	@echo "Adding package: $(PKG)..."$
+	@echo "Adding package: $(PKG)..."
 	uv add $(PKG)
 
 add-dev: ## Add a new dev package (use PKG=name)
 	@echo "Adding dev package: $(PKG)..."
-	@echo "Adding dev package: $(PKG)..."$
 	uv add --dev $(PKG)
 
 remove: ## Remove a package (use PKG=name)
 	@echo "Removing package: $(PKG)..."
-	@echo "Removing package: $(PKG)..."$
 	uv remove $(PKG)
+
+outdated: ## Check for outdated dependencies
+	@echo "Checking for outdated dependencies..."
+	uv pip list --outdated
+
+check: ## Check for dependency conflicts
+	@echo "Checking for dependency conflicts..."
+	uv pip check
+
+compile: ## Compile requirements.txt from pyproject.toml
+	@echo "Compiling requirements.txt..."
+	uv pip compile pyproject.toml -o requirements.txt
+
+export: ## Export locked dependencies to requirements.txt
+	@echo "Exporting dependencies to requirements.txt..."
+	uv pip export -o requirements.txt
+
+why: ## Show why a package is installed (use PKG=name)
+	@echo "Checking why $(PKG) is installed..."
+	uv pip tree --package $(PKG)
+
+tree: ## Show dependency tree
+	@echo "Showing dependency tree..."
+	uv pip tree
 
 # =============================================================================
 # CI/CD

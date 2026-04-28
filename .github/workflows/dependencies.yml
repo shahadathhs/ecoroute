@@ -1,0 +1,33 @@
+name: Update Dependencies
+
+on:
+  workflow_dispatch:
+    inputs:
+      ecosystem:
+        description: 'Package ecosystem to update'
+        required: true
+        default: 'pip'
+        type: choice
+        options:
+          - pip
+          - docker
+          - github-actions
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Dependabot
+        run: |
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/dependabot/update_branch/ \
+            --field package-ecosystem=${{ inputs.ecosystem }} \
+            --field update-type=all
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
