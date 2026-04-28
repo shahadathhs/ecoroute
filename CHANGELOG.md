@@ -2,6 +2,30 @@
 
 <!-- version list -->
 
+## v1.3.0 (2026-04-28)
+
+### Chores
+
+- Enhance UV package management workflow
+  ([`2665ba2`](https://github.com/shahadathhs/ecoroute/commit/2665ba2b82e49168292220f3136bdc5462eac173))
+
+- Remove broken Dependabot workflow
+  ([`39d8da9`](https://github.com/shahadathhs/ecoroute/commit/39d8da91c7e1289b8efba34f898345974ad5b136))
+
+- **deps**: Remove redundant reviewers from dependabot configuration
+  ([`94f7106`](https://github.com/shahadathhs/ecoroute/commit/94f710650c5b66366959a3aba2bc4f9dfc63f219))
+
+### Continuous Integration
+
+- **deps**: Bump actions/github-script from 7 to 9
+  ([`59b4651`](https://github.com/shahadathhs/ecoroute/commit/59b465191d03cc8dc0c08cacfae3fdef36c5fa99))
+
+### Features
+
+- Add manual dependency update workflow
+  ([`0c6e830`](https://github.com/shahadathhs/ecoroute/commit/0c6e830ec813e7bfb8f07db91da3090dd0d6c917))
+
+
 ## v1.2.0 (2026-04-07)
 
 ### Chores
