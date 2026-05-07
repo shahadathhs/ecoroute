@@ -69,8 +69,9 @@ class Settings(BaseSettings):
         default="admin@ecoroute.com", description="Default superadmin email for seeding"
     )
     superadmin_password: str = Field(
-        default="Admin123!", description="Default superadmin password for seeding"
+        description="Default superadmin password for seeding"
     )
+
 
     # CORS
     cors_origins: str | list[str] = Field(
