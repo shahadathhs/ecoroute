@@ -14,27 +14,21 @@ class UserBase(BaseModel):
     """Base user schema."""
 
     email: EmailStr = Field(..., description="User email address")
-    full_name: str = Field(
-        ..., min_length=1, max_length=255, description="User full name"
-    )
+    full_name: str = Field(..., min_length=1, max_length=255, description="User full name")
 
 
 class UserCreate(UserBase):
     """User creation schema."""
 
     password: str = Field(..., min_length=8, description="User password")
-    role: UserRole = Field(
-        default=UserRole.STANDARD_DISPATCHER, description="User role"
-    )
+    role: UserRole = Field(default=UserRole.STANDARD_DISPATCHER, description="User role")
     organization_id: str | None = Field(None, description="Organization ID")
 
 
 class UserUpdate(BaseModel):
     """User update schema."""
 
-    full_name: str | None = Field(
-        None, min_length=1, max_length=255, description="User full name"
-    )
+    full_name: str | None = Field(None, min_length=1, max_length=255, description="User full name")
     role: UserRole | None = Field(None, description="User role")
     is_active: bool | None = Field(None, description="User active status")
 

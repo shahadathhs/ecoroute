@@ -1,14 +1,14 @@
 """Database models module."""
 
 from app.models.base import Base, TimestampMixin
-from app.models.user import Organization, User, UserRole, SubscriptionTier
+from app.models.fleet import FleetUnit, FleetUnitStatus, VehicleType
 from app.models.shipment import (
     Shipment,
     ShipmentEvent,
-    ShipmentStatus,
     ShipmentEventType,
+    ShipmentStatus,
 )
-from app.models.fleet import FleetUnit, VehicleType, FleetUnitStatus
+from app.models.user import Organization, SubscriptionTier, User, UserRole
 
 __all__ = [
     "Base",

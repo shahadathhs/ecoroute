@@ -4,7 +4,7 @@ Fleet Management API Routes
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.users import require_manager
@@ -13,13 +13,13 @@ from app.db.session import get_db
 from app.models.fleet import FleetUnitStatus, VehicleType
 from app.models.user import User
 from app.schemas.fleet import (
-    FleetUnitData,
-    FleetUnitCreate,
-    FleetUnitUpdate,
     DriverAssignmentRequest,
     FleetDiagnostics,
-    FleetUnitResponse,
     FleetDiagnosticsResponse,
+    FleetUnitCreate,
+    FleetUnitData,
+    FleetUnitResponse,
+    FleetUnitUpdate,
 )
 from app.services.fleet import FleetService
 

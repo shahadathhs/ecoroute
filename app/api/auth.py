@@ -3,7 +3,7 @@ Authentication API Routes
 """
 
 from fastapi import APIRouter, Depends, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.response import ResponseBuilder
@@ -11,8 +11,8 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
-    TokenResponseSchema,
     RefreshTokenRequest,
+    TokenResponseSchema,
 )
 from app.schemas.user import UserData
 from app.services.auth import AuthService

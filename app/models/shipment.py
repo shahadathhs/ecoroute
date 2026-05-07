@@ -3,15 +3,16 @@ Shipment and ShipmentEvent Models
 """
 
 import uuid
-from enum import Enum
+from enum import StrEnum
 
-from sqlalchemy import Enum as SQLEnum, ForeignKey, String, Text, JSON
+from sqlalchemy import JSON, ForeignKey, String, Text
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
 
 
-class ShipmentStatus(str, Enum):
+class ShipmentStatus(StrEnum):
     """Shipment status values."""
 
     PENDING = "PENDING"
@@ -20,7 +21,7 @@ class ShipmentStatus(str, Enum):
     CANCELLED = "CANCELLED"
 
 
-class ShipmentEventType(str, Enum):
+class ShipmentEventType(StrEnum):
     """Shipment event types."""
 
     CREATED = "CREATED"
@@ -37,9 +38,7 @@ class Shipment(Base, TimestampMixin):
 
     __tablename__ = "shipments"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     tracking_number: Mapped[str] = mapped_column(
         String(100), unique=True, nullable=False, index=True
     )
@@ -52,12 +51,8 @@ class Shipment(Base, TimestampMixin):
 
     # Origin information
     origin_city: Mapped[str] = mapped_column(String(255), nullable=False)
-    origin_code: Mapped[str] = mapped_column(
-        String(50), nullable=False
-    )  # Airport/port code
-    origin_coords: Mapped[dict | None] = mapped_column(
-        JSON, nullable=True
-    )  # {"lat": 0, "lng": 0}
+    origin_code: Mapped[str] = mapped_column(String(50), nullable=False)  # Airport/port code
+    origin_coords: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # {"lat": 0, "lng": 0}
 
     # Destination information
     destination_city: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -94,9 +89,7 @@ class ShipmentEvent(Base, TimestampMixin):
 
     __tablename__ = "shipment_events"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     shipment_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("shipments.id"), nullable=False, index=True
     )

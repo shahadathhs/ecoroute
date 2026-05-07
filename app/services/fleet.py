@@ -6,13 +6,12 @@ Handles fleet management operations including vehicle tracking and maintenance.
 
 import uuid
 from datetime import date
-from typing import List, Dict
 
-from sqlalchemy import select, and_
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import BadRequestException, NotFoundException
-from app.models.fleet import FleetUnit, VehicleType, FleetUnitStatus
+from app.models.fleet import FleetUnit, FleetUnitStatus, VehicleType
 from app.models.user import User
 from app.schemas.fleet import FleetUnitCreate, FleetUnitUpdate
 
@@ -93,7 +92,7 @@ class FleetService:
         limit: int = 100,
         status: FleetUnitStatus | None = None,
         vehicle_type: VehicleType | None = None,
-    ) -> List[FleetUnit]:
+    ) -> list[FleetUnit]:
         """List fleet units in an organization with filters.
 
         Args:
@@ -139,9 +138,7 @@ class FleetService:
         """
         fleet_unit = await FleetService.get_fleet_unit_by_id(unit_id, db)
         if not fleet_unit:
-            raise NotFoundException(
-                message="Fleet unit not found", details={"unit_id": unit_id}
-            )
+            raise NotFoundException(message="Fleet unit not found", details={"unit_id": unit_id})
 
         # Update fields
         if unit_data.type is not None:
@@ -161,9 +158,7 @@ class FleetService:
         return fleet_unit
 
     @staticmethod
-    async def assign_driver(
-        unit_id: str, driver_id: str, db: AsyncSession
-    ) -> FleetUnit:
+    async def assign_driver(unit_id: str, driver_id: str, db: AsyncSession) -> FleetUnit:
         """Assign a driver to a fleet unit.
 
         Args:
@@ -180,9 +175,7 @@ class FleetService:
         """
         fleet_unit = await FleetService.get_fleet_unit_by_id(unit_id, db)
         if not fleet_unit:
-            raise NotFoundException(
-                message="Fleet unit not found", details={"unit_id": unit_id}
-            )
+            raise NotFoundException(message="Fleet unit not found", details={"unit_id": unit_id})
 
         # Check if driver exists
         from app.models.user import UserRole
@@ -191,9 +184,7 @@ class FleetService:
         driver = result.scalar_one_or_none()
 
         if not driver:
-            raise NotFoundException(
-                message="Driver not found", details={"driver_id": driver_id}
-            )
+            raise NotFoundException(message="Driver not found", details={"driver_id": driver_id})
 
         if driver.role != UserRole.DRIVER:
             raise BadRequestException(
@@ -207,7 +198,7 @@ class FleetService:
         return fleet_unit
 
     @staticmethod
-    async def get_fleet_diagnostics(unit_id: str, db: AsyncSession) -> Dict:
+    async def get_fleet_diagnostics(unit_id: str, db: AsyncSession) -> dict:
         """Get diagnostics for a fleet unit.
 
         Args:
@@ -222,9 +213,7 @@ class FleetService:
         """
         fleet_unit = await FleetService.get_fleet_unit_by_id(unit_id, db)
         if not fleet_unit:
-            raise NotFoundException(
-                message="Fleet unit not found", details={"unit_id": unit_id}
-            )
+            raise NotFoundException(message="Fleet unit not found", details={"unit_id": unit_id})
 
         # Calculate days since maintenance
         days_since_maintenance = None
@@ -241,9 +230,7 @@ class FleetService:
         # Get driver name if assigned
         current_driver = None
         if fleet_unit.current_driver_id:
-            result = await db.execute(
-                select(User).where(User.id == fleet_unit.current_driver_id)
-            )
+            result = await db.execute(select(User).where(User.id == fleet_unit.current_driver_id))
             driver = result.scalar_one_or_none()
             if driver:
                 current_driver = driver.full_name
@@ -275,9 +262,7 @@ class FleetService:
         """
         fleet_unit = await FleetService.get_fleet_unit_by_id(unit_id, db)
         if not fleet_unit:
-            raise NotFoundException(
-                message="Fleet unit not found", details={"unit_id": unit_id}
-            )
+            raise NotFoundException(message="Fleet unit not found", details={"unit_id": unit_id})
 
         fleet_unit.status = FleetUnitStatus.MAINTENANCE
         await db.commit()

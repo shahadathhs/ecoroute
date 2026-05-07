@@ -6,17 +6,16 @@ Handles shipment management operations including creation, tracking, and updates
 
 import uuid
 from datetime import datetime
-from typing import List
 
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import NotFoundException
 from app.models.shipment import (
     Shipment,
     ShipmentEvent,
-    ShipmentStatus,
     ShipmentEventType,
+    ShipmentStatus,
 )
 from app.schemas.shipment import ShipmentCreate, ShipmentEventCreate
 
@@ -128,7 +127,7 @@ class ShipmentService:
         limit: int = 100,
         status: ShipmentStatus | None = None,
         search: str | None = None,
-    ) -> List[Shipment]:
+    ) -> list[Shipment]:
         """List shipments in an organization with pagination and filters.
 
         Args:
@@ -243,9 +242,7 @@ class ShipmentService:
         return event
 
     @staticmethod
-    async def update_location(
-        shipment_id: str, location: dict, db: AsyncSession
-    ) -> Shipment:
+    async def update_location(shipment_id: str, location: dict, db: AsyncSession) -> Shipment:
         """Update shipment current location.
 
         Args:

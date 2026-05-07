@@ -2,9 +2,10 @@
 Logging Configuration Module
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
+
 from loguru import logger as _logger
 
 from app.core.config import settings
@@ -62,9 +63,7 @@ def setup_logger() -> None:
                 frame = frame.f_back  # type: ignore
                 depth += 1
 
-            _logger.opt(depth=depth, exception=record.exc_info).log(
-                level, record.getMessage()
-            )
+            _logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 

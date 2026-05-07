@@ -6,8 +6,8 @@ Handles user authentication, token generation, and user session management.
 
 from datetime import datetime
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import NotFoundException, UnauthorizedException
 from app.core.security import (
@@ -24,9 +24,7 @@ class AuthService:
     """Authentication service for user login and token management."""
 
     @staticmethod
-    async def authenticate_user(
-        email: str, password: str, db: AsyncSession
-    ) -> User | None:
+    async def authenticate_user(email: str, password: str, db: AsyncSession) -> User | None:
         """Authenticate user with email and password.
 
         Args:
@@ -82,9 +80,7 @@ class AuthService:
             "sub": str(user.id),
             "email": user.email,
             "role": user.role.value,
-            "organization_id": (
-                str(user.organization_id) if user.organization_id else None
-            ),
+            "organization_id": (str(user.organization_id) if user.organization_id else None),
         }
 
         access_token = create_access_token(token_data)
@@ -140,9 +136,7 @@ class AuthService:
                 "sub": str(user.id),
                 "email": user.email,
                 "role": user.role.value,
-                "organization_id": (
-                    str(user.organization_id) if user.organization_id else None
-                ),
+                "organization_id": (str(user.organization_id) if user.organization_id else None),
             }
 
             access_token = create_access_token(token_data)
@@ -158,7 +152,7 @@ class AuthService:
         except ValueError as e:
             raise UnauthorizedException(
                 message="Invalid refresh token", details={"error": str(e)}
-            )
+            ) from e
 
     @staticmethod
     async def get_current_user_from_token(token: str, db: AsyncSession) -> User:
@@ -193,9 +187,7 @@ class AuthService:
             user = result.scalar_one_or_none()
 
             if not user:
-                raise NotFoundException(
-                    message="User not found", details={"user_id": user_id}
-                )
+                raise NotFoundException(message="User not found", details={"user_id": user_id})
 
             if not user.is_active:
                 raise UnauthorizedException(
@@ -205,9 +197,7 @@ class AuthService:
             return user
 
         except ValueError as e:
-            raise UnauthorizedException(
-                message="Invalid token", details={"error": str(e)}
-            )
+            raise UnauthorizedException(message="Invalid token", details={"error": str(e)}) from e
 
     @staticmethod
     async def get_current_active_user(current_user: User) -> User:

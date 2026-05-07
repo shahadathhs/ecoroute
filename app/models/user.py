@@ -4,15 +4,16 @@ User and Organization Models
 
 import uuid
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
-from sqlalchemy import JSON, Boolean, DateTime, Enum as SQLEnum, ForeignKey, String
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
 
 
-class SubscriptionTier(str, Enum):
+class SubscriptionTier(StrEnum):
     """Organization subscription tiers."""
 
     FREE = "FREE"
@@ -20,7 +21,7 @@ class SubscriptionTier(str, Enum):
     ENTERPRISE = "ENTERPRISE"
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     """User roles for RBAC."""
 
     SUPER_ADMIN = "SUPER_ADMIN"
@@ -37,9 +38,7 @@ class Organization(Base, TimestampMixin):
 
     __tablename__ = "organizations"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     subscription_tier: Mapped[SubscriptionTier] = mapped_column(
         SQLEnum(SubscriptionTier), default=SubscriptionTier.FREE, nullable=False
@@ -48,9 +47,7 @@ class Organization(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
 
     # Relationships
-    users = relationship(
-        "User", back_populates="organization", cascade="all, delete-orphan"
-    )
+    users = relationship("User", back_populates="organization", cascade="all, delete-orphan")
     shipments = relationship(
         "Shipment", back_populates="organization", cascade="all, delete-orphan"
     )
@@ -64,12 +61,8 @@ class User(Base, TimestampMixin):
 
     __tablename__ = "users"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
-    email: Mapped[str] = mapped_column(
-        String(255), unique=True, nullable=False, index=True
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[UserRole] = mapped_column(
@@ -79,15 +72,9 @@ class User(Base, TimestampMixin):
         String(36), ForeignKey("organizations.id"), nullable=True, index=True
     )
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    last_login: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    last_login: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
     # Relationships
     organization = relationship("Organization", back_populates="users")
-    assigned_fleet_units = relationship(
-        "FleetUnit", foreign_keys="FleetUnit.current_driver_id"
-    )
-    created_shipment_events = relationship(
-        "ShipmentEvent", foreign_keys="ShipmentEvent.created_by"
-    )
+    assigned_fleet_units = relationship("FleetUnit", foreign_keys="FleetUnit.current_driver_id")
+    created_shipment_events = relationship("ShipmentEvent", foreign_keys="ShipmentEvent.created_by")

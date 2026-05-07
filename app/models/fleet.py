@@ -4,15 +4,16 @@ Fleet Unit Model
 
 import uuid
 from datetime import date
-from enum import Enum
+from enum import StrEnum
 
-from sqlalchemy import Date, Enum as SQLEnum, ForeignKey, String, Float
+from sqlalchemy import Date, Float, ForeignKey, String
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
 
 
-class VehicleType(str, Enum):
+class VehicleType(StrEnum):
     """Types of fleet vehicles."""
 
     EV_SEMI = "EV_SEMI"
@@ -21,7 +22,7 @@ class VehicleType(str, Enum):
     DRONE = "DRONE"
 
 
-class FleetUnitStatus(str, Enum):
+class FleetUnitStatus(StrEnum):
     """Fleet unit status values."""
 
     ACTIVE = "ACTIVE"
@@ -34,22 +35,14 @@ class FleetUnit(Base, TimestampMixin):
 
     __tablename__ = "fleet_units"
 
-    id: Mapped[str] = mapped_column(
-        String(36), primary_key=True, default=lambda: str(uuid.uuid4())
-    )
-    unit_id: Mapped[str] = mapped_column(
-        String(100), unique=True, nullable=False, index=True
-    )
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    unit_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     organization_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("organizations.id"), nullable=False, index=True
     )
     type: Mapped[VehicleType] = mapped_column(SQLEnum(VehicleType), nullable=False)
-    battery_health: Mapped[float] = mapped_column(
-        Float, default=1.0, nullable=False
-    )  # 0.0 to 1.0
-    fuel_level: Mapped[float] = mapped_column(
-        Float, default=1.0, nullable=False
-    )  # 0.0 to 1.0
+    battery_health: Mapped[float] = mapped_column(Float, default=1.0, nullable=False)  # 0.0 to 1.0
+    fuel_level: Mapped[float] = mapped_column(Float, default=1.0, nullable=False)  # 0.0 to 1.0
     last_maintenance: Mapped[date | None] = mapped_column(Date, nullable=True)
     current_driver_id: Mapped[str | None] = mapped_column(
         String(36), ForeignKey("users.id"), nullable=True

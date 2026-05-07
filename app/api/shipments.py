@@ -4,7 +4,7 @@ Shipment Management API Routes
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.users import get_current_user, require_manager
@@ -13,14 +13,14 @@ from app.db.session import get_db
 from app.models.shipment import ShipmentStatus
 from app.models.user import User
 from app.schemas.shipment import (
-    ShipmentData,
+    LocationUpdate,
     ShipmentCreate,
-    ShipmentUpdate,
+    ShipmentData,
     ShipmentEventCreate,
     ShipmentEventData,
-    ShipmentResponse,
     ShipmentEventResponse,
-    LocationUpdate,
+    ShipmentResponse,
+    ShipmentUpdate,
 )
 from app.services.shipment import ShipmentService
 
@@ -46,9 +46,7 @@ async def get_shipments(
     status_filter: ShipmentStatus | None = Query(
         None, alias="status", description="Filter by status"
     ),
-    search: str | None = Query(
-        None, description="Search by tracking number or carrier"
-    ),
+    search: str | None = Query(None, description="Search by tracking number or carrier"),
     db: AsyncSession = Depends(get_db),
 ):
     """

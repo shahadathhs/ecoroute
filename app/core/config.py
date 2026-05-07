@@ -2,10 +2,9 @@
 Application Configuration Module
 """
 
-from typing import List
 from functools import lru_cache
 
-from pydantic import field_validator, Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -63,9 +62,7 @@ class Settings(BaseSettings):
     password_require_uppercase: bool = Field(
         default=True, description="Require uppercase letters in password"
     )
-    password_require_numbers: bool = Field(
-        default=True, description="Require numbers in password"
-    )
+    password_require_numbers: bool = Field(default=True, description="Require numbers in password")
 
     # Super Admin Seeding
     superadmin_email: str = Field(
@@ -76,7 +73,7 @@ class Settings(BaseSettings):
     )
 
     # CORS
-    cors_origins: str | List[str] = Field(
+    cors_origins: str | list[str] = Field(
         default="http://localhost:3000,http://localhost:8000",
         description="CORS allowed origins",
     )
@@ -86,7 +83,7 @@ class Settings(BaseSettings):
 
     @field_validator("cors_origins", mode="before")
     @classmethod
-    def parse_cors_origins(cls, v: str | List[str]) -> List[str]:
+    def parse_cors_origins(cls, v: str | list[str]) -> list[str]:
         """Parse CORS origins from string or list."""
         if isinstance(v, list):
             return v
@@ -96,7 +93,7 @@ class Settings(BaseSettings):
             # JSON-like format: ["http://...", "http://..."]
             import json
 
-            parsed: List[str] = json.loads(v)
+            parsed: list[str] = json.loads(v)
             return parsed
         else:
             # Comma-separated format
@@ -113,7 +110,7 @@ class Settings(BaseSettings):
         return self.environment.lower() in ("production", "prod")
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Get cached settings instance."""
     return Settings()

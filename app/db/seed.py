@@ -6,12 +6,13 @@ Creates initial data for the application including a default superadmin user and
 
 import uuid
 from typing import cast
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import Organization, User, UserRole, SubscriptionTier
-from app.core.security import hash_password
 from app.core.config import settings
 from app.core.logger import logger
+from app.core.security import hash_password
+from app.models.user import Organization, SubscriptionTier, User, UserRole
 
 
 async def seed_database(db: AsyncSession) -> None:
@@ -24,7 +25,7 @@ async def seed_database(db: AsyncSession) -> None:
     Args:
         db: Database session
     """
-    from sqlalchemy import select, func
+    from sqlalchemy import func, select
 
     # Check if superadmin with configured email already exists
     result = await db.execute(
@@ -32,9 +33,7 @@ async def seed_database(db: AsyncSession) -> None:
     )
     count: int | None = result.scalar_one()
     if count and count > 0:
-        logger.info(
-            f"Superadmin user ({settings.superadmin_email}) already exists - skipping seed"
-        )
+        logger.info(f"Superadmin user ({settings.superadmin_email}) already exists - skipping seed")
         return
 
     logger.info("Seeding database with initial data...")

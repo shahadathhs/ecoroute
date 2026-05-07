@@ -3,7 +3,9 @@ Root API Service
 """
 
 import sys
+
 from fastapi import status
+
 from app.core.config import settings
 from app.core.response import ResponseBuilder
 from app.schemas.root import PingData, PingResponse, RootData, RootResponse

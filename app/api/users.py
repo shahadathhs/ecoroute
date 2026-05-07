@@ -4,20 +4,20 @@ User Management API Routes
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Query
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import APIRouter, Depends, Query, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ForbiddenException
-from app.models.user import User, UserRole
 from app.db.session import get_db
+from app.models.user import User, UserRole
 from app.schemas.user import (
-    UserData,
-    UserCreate,
-    UserUpdate,
-    UserInvite,
     RoleUpdateRequest,
+    UserCreate,
+    UserData,
+    UserInvite,
     UserResponse,
+    UserUpdate,
 )
 from app.services.user import UserService
 
@@ -72,9 +72,7 @@ class RoleChecker:
     def __init__(self, *roles: UserRole):
         self.roles = roles
 
-    def __call__(
-        self, current_user: Annotated[User, Depends(get_current_user)]
-    ) -> User:
+    def __call__(self, current_user: Annotated[User, Depends(get_current_user)]) -> User:
         if current_user.role not in self.roles:
             raise ForbiddenException(
                 message="Insufficient permissions",

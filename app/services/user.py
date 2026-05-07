@@ -5,9 +5,8 @@ Handles user management operations including creation, retrieval, and updates.
 """
 
 import uuid
-from typing import List
 
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import BadRequestException, NotFoundException
@@ -92,7 +91,7 @@ class UserService:
         skip: int = 0,
         limit: int = 100,
         search: str | None = None,
-    ) -> List[User]:
+    ) -> list[User]:
         """List users in an organization with pagination.
 
         Args:
@@ -122,9 +121,7 @@ class UserService:
         return list(result.scalars().all())
 
     @staticmethod
-    async def update_user(
-        user_id: str, user_data: UserUpdate, db: AsyncSession
-    ) -> User:
+    async def update_user(user_id: str, user_data: UserUpdate, db: AsyncSession) -> User:
         """Update user.
 
         Args:
@@ -140,9 +137,7 @@ class UserService:
         """
         user = await UserService.get_user_by_id(user_id, db)
         if not user:
-            raise NotFoundException(
-                message="User not found", details={"user_id": user_id}
-            )
+            raise NotFoundException(message="User not found", details={"user_id": user_id})
 
         # Update fields
         if user_data.full_name is not None:
@@ -173,9 +168,7 @@ class UserService:
         """
         user = await UserService.get_user_by_id(user_id, db)
         if not user:
-            raise NotFoundException(
-                message="User not found", details={"user_id": user_id}
-            )
+            raise NotFoundException(message="User not found", details={"user_id": user_id})
 
         user.is_active = False
         await db.commit()
@@ -203,9 +196,7 @@ class UserService:
         # Check if email already exists
         result = await db.execute(select(User).where(User.email == email))
         if result.scalar_one_or_none():
-            raise BadRequestException(
-                message="Email already registered", details={"email": email}
-            )
+            raise BadRequestException(message="Email already registered", details={"email": email})
 
         # Generate temporary password
         temp_password = uuid.uuid4().hex[:16]

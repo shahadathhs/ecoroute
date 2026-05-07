@@ -2,14 +2,15 @@
 Error Handlers and Custom Exceptions
 """
 
-from typing import Any, Dict
+from typing import Any
+
 from fastapi import Request, status
-from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.core.logger import logger
 from app.core.config import settings
+from app.core.logger import logger
 
 
 class AppException(Exception):
@@ -19,7 +20,7 @@ class AppException(Exception):
         self,
         message: str,
         status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR,
-        details: Dict[str, Any] | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         self.message = message
         self.status_code = status_code
@@ -31,7 +32,7 @@ class NotFoundException(AppException):
     """Resource not found exception."""
 
     def __init__(
-        self, message: str = "Resource not found", details: Dict[str, Any] | None = None
+        self, message: str = "Resource not found", details: dict[str, Any] | None = None
     ) -> None:
         super().__init__(message, status.HTTP_404_NOT_FOUND, details)
 
@@ -39,9 +40,7 @@ class NotFoundException(AppException):
 class BadRequestException(AppException):
     """Bad request exception."""
 
-    def __init__(
-        self, message: str = "Bad request", details: Dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "Bad request", details: dict[str, Any] | None = None) -> None:
         super().__init__(message, status.HTTP_400_BAD_REQUEST, details)
 
 
@@ -49,7 +48,7 @@ class UnauthorizedException(AppException):
     """Unauthorized exception."""
 
     def __init__(
-        self, message: str = "Unauthorized", details: Dict[str, Any] | None = None
+        self, message: str = "Unauthorized", details: dict[str, Any] | None = None
     ) -> None:
         super().__init__(message, status.HTTP_401_UNAUTHORIZED, details)
 
@@ -57,9 +56,7 @@ class UnauthorizedException(AppException):
 class ForbiddenException(AppException):
     """Forbidden exception."""
 
-    def __init__(
-        self, message: str = "Forbidden", details: Dict[str, Any] | None = None
-    ) -> None:
+    def __init__(self, message: str = "Forbidden", details: dict[str, Any] | None = None) -> None:
         super().__init__(message, status.HTTP_403_FORBIDDEN, details)
 
 
@@ -88,9 +85,7 @@ async def app_exception_handler(request: Request, exc: AppException) -> JSONResp
     )
 
 
-async def http_exception_handler(
-    request: Request, exc: StarletteHTTPException
-) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     """Handle HTTP exceptions."""
     logger.error(
         f"HTTPException: {exc.detail}",

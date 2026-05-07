@@ -6,7 +6,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.models.shipment import ShipmentStatus, ShipmentEventType
+from app.models.shipment import ShipmentEventType, ShipmentStatus
 from app.schemas.base import DataResponse
 
 
@@ -22,9 +22,7 @@ class EnvironmentalImpact(BaseModel):
     """Environmental impact data schema."""
 
     co2_estimate_kg: float = Field(..., description="Estimated CO2 emissions in kg")
-    route_efficiency: float = Field(
-        ..., ge=0, le=1, description="Route efficiency score"
-    )
+    route_efficiency: float = Field(..., ge=0, le=1, description="Route efficiency score")
 
 
 class ShipmentCreate(BaseModel):
@@ -35,9 +33,7 @@ class ShipmentCreate(BaseModel):
     origin_coords: dict | None = Field(None, description="Origin GPS coordinates")
     destination_city: str = Field(..., description="Destination city name")
     destination_code: str = Field(..., description="Destination airport/port code")
-    destination_coords: dict | None = Field(
-        None, description="Destination GPS coordinates"
-    )
+    destination_coords: dict | None = Field(None, description="Destination GPS coordinates")
     carrier: str = Field(..., description="Carrier company name")
     cargo_type: str = Field(..., description="Cargo type description")
 
@@ -62,15 +58,11 @@ class ShipmentData(BaseModel):
     origin_coords: dict | None = Field(None, description="Origin GPS coordinates")
     destination_city: str = Field(..., description="Destination city")
     destination_code: str = Field(..., description="Destination airport/port code")
-    destination_coords: dict | None = Field(
-        None, description="Destination GPS coordinates"
-    )
+    destination_coords: dict | None = Field(None, description="Destination GPS coordinates")
     current_location: dict | None = Field(None, description="Current GPS location")
     carrier: str = Field(..., description="Carrier company")
     cargo_type: str = Field(..., description="Cargo type")
-    environmental_impact: dict | None = Field(
-        None, description="Environmental impact data"
-    )
+    environmental_impact: dict | None = Field(None, description="Environmental impact data")
     created_at: datetime = Field(..., description="Creation timestamp")
     updated_at: datetime = Field(..., description="Last update timestamp")
 
