@@ -11,7 +11,7 @@ PYTHON_BIN := uv run python
 .PHONY: help setup venv install reset-venv pre-commit-install pre-commit-run pre-commit-update
 .PHONY: build dev dev-verbose prod release-dry-run release-changelog release-publish
 .PHONY: lint lint-fix format format-check type-check check-all fix-all
-.PHONY: migrate-up migrate-down migration db-shell
+.PHONY: migrate-up migrate-down migration db-shell seed-db reset-db
 .PHONY: docker-build docker-infra docker-prod docker-down docker-logs
 .PHONY: clean shell logs sync update upgrade-all-pinned freeze list outdated check compile export why tree add remove ci info
 
@@ -100,20 +100,20 @@ lint-fix: ## Fix linting issues automatically
 	@echo "Fixing linting issues..."
 	$(PYTHON_BIN) -m ruff check --fix app/
 
-format: ## Format code with black
+format: ## Format code with ruff-format
 	@echo "Formatting code..."
-	$(PYTHON_BIN) -m black app/
+	$(PYTHON_BIN) -m ruff format app/
 	@echo "✓ Code formatted"
 
 format-check: ## Check if code needs formatting
 	@echo "Checking code formatting..."
-	$(PYTHON_BIN) -m black --check app/
+	$(PYTHON_BIN) -m ruff format --check app/
 
 type-check: ## Run type checker (mypy)
 	@echo "Running type checks..."
 	$(PYTHON_BIN) -m mypy app/
 
-check-all: lint type-check ## Run all quality checks
+check-all: lint type-check security ## Run all quality checks
 	@echo "Running all quality checks..."
 
 fix-all: lint-fix format ## Fix all auto-fixable issues
@@ -138,6 +138,29 @@ migration: ## Create new migration (use NAME=name)
 db-shell: ## Open database shell
 	@echo "Opening database shell..."
 	psql $${DATABASE_URL}
+
+seed-db: ## Seed database with default admin user
+	@echo "Seeding database..."
+	$(PYTHON_BIN) -c "import asyncio; from app.db.session import async_session_maker; \
+	from app.db.seed import seed_database; \
+	async def run(): \
+		async with async_session_maker() as db: \
+			await seed_database(db); \
+	asyncio.run(run())"
+
+reset-db: ## Reset database (drop all tables and reseed)
+	@echo "⚠️  WARNING: This will delete all data!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [ "$$REPLY" = "y" ]; then \
+		$(PYTHON_BIN) -c "import asyncio; from app.db.session import engine; from app.models.base import Base; \
+		async def reset(): \
+			async with engine.begin() as conn: \
+				await conn.run_sync(Base.metadata.drop_all); \
+				await conn.run_sync(Base.metadata.create_all); \
+		asyncio.run(reset())"; \
+		$(MAKE) seed-db; \
+	fi
 
 # =============================================================================
 # DOCKER
@@ -243,7 +266,7 @@ tree: ## Show dependency tree
 # =============================================================================
 security: ## Run security scan with bandit
 	@echo "Running security scan..."
-	@uv run bandit -r app/ -f screen -v
+	@uv run bandit -c .bandit -r app/ -f screen
 	@echo "✓ Security scan complete"
 
 ci: pre-commit-run security build ## Run CI pipeline checks

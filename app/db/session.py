@@ -2,7 +2,7 @@
 Database Session Management
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -12,13 +12,16 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config import settings
 
-# Create async engine
+# Create async engine (SQLAlchemy echo disabled - use Loguru for logging)
 engine = create_async_engine(
     settings.database_url,
     pool_size=20,
     max_overflow=0,
-    echo=settings.debug,
+    echo=False,  # Disable SQLAlchemy echo to avoid duplicate logs
     future=True,
+    connect_args={
+        "server_settings": {"application_name": "ecoroute_atlas"},
+    },
 )
 
 # Create async session maker
@@ -29,7 +32,7 @@ async_session_maker = async_sessionmaker(
 )
 
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
+async def get_db() -> AsyncGenerator[AsyncSession]:
     """
     Dependency function to get database session.
 

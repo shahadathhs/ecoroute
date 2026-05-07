@@ -2,8 +2,10 @@
 Logging Configuration Module
 """
 
+import logging
 import sys
 from pathlib import Path
+
 from loguru import logger as _logger
 
 from app.core.config import settings
@@ -14,11 +16,11 @@ def setup_logger() -> None:
     # Remove default handler
     _logger.remove()
 
-    # Console handler
+    # Console handler with cleaner format
     _logger.add(
         sys.stderr,
         level=settings.log_level,
-        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+        format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
         colorize=True,
         backtrace=True,
         diagnose=settings.debug,
@@ -40,14 +42,17 @@ def setup_logger() -> None:
         enqueue=True,  # Async logging
     )
 
-    # Intercept standard logging
-    import logging
-
+    # Intercept standard logging (but filter out verbose SQLAlchemy logs)
     class InterceptHandler(logging.Handler):
         """Intercept standard logging messages."""
 
         def emit(self, record: logging.LogRecord) -> None:
             """Emit log record."""
+            # Filter out verbose SQLAlchemy logs
+            if record.name.startswith("sqlalchemy.engine"):
+                if record.levelno < logging.WARNING:
+                    return  # Skip INFO and DEBUG from SQLAlchemy engine
+
             try:
                 level = _logger.level(record.levelname).name
             except ValueError:
@@ -58,9 +63,7 @@ def setup_logger() -> None:
                 frame = frame.f_back  # type: ignore
                 depth += 1
 
-            _logger.opt(depth=depth, exception=record.exc_info).log(
-                level, record.getMessage()
-            )
+            _logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
 

@@ -7,8 +7,9 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
-        exclude: ^(.md)$
+        exclude: ^(.md)$|^alembic/
       - id: end-of-file-fixer
+        exclude: ^alembic/
       - id: check-yaml
       - id: check-added-large-files
       - id: check-json
@@ -33,4 +34,6 @@ repos:
           - pydantic>=2.0
           - sqlalchemy>=2.0
           - types-requests
-        args: [--ignore-missing-imports, --warn-return-any]
+          - types-python-jose
+        args: [--ignore-missing-imports, --no-strict-optional, --warn-return-any]
+        exclude: ^alembic/

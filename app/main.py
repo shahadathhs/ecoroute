@@ -3,21 +3,22 @@ Main Application Entry Point
 """
 
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.api import auth, docs, fleet, health, root, shipments, users
 from app.core.config import settings
-from app.core.logger import setup_logger, logger
 from app.core.errors import (
     AppException,
     app_exception_handler,
+    general_exception_handler,
     http_exception_handler,
     validation_exception_handler,
-    general_exception_handler,
 )
-from app.api import root, health, docs
+from app.core.logger import logger, setup_logger
 
 
 @asynccontextmanager
@@ -29,10 +30,15 @@ async def lifespan(app: FastAPI):
     logger.info(f"Debug mode: {settings.debug}")
 
     # Initialize database
-    from app.db.session import init_db
+    from app.db.seed import seed_database
+    from app.db.session import async_session_maker, init_db
 
     await init_db()
     logger.info("Database initialized")
+
+    # Seed initial data if needed
+    async with async_session_maker() as db:
+        await seed_database(db)
 
     yield
 
@@ -47,7 +53,7 @@ def create_app() -> FastAPI:
     """Create and configure FastAPI application."""
     app = FastAPI(
         title=settings.app_name,
-        description="""
+        description=f"""
 ## 🌍 EcoRoute Atlas
 
 AI-driven backend system for global supply chain management, sustainability tracking, and regulatory compliance.
@@ -87,9 +93,9 @@ All endpoints return JSON responses with the following structure:
 
 ### 🌐 Environment
 
-- **Version**: {version}
+- **Version**: {settings.app_version}
 - **Environment**: Development/Production
-        """.format(version=settings.app_version),
+        """,
         version=settings.app_version,
         docs_url="/docs",
         redoc_url="/redoc",
@@ -111,6 +117,22 @@ All endpoints return JSON responses with the following structure:
             {
                 "name": "Documentation",
                 "description": "Documentation viewers and API reference hubs.",
+            },
+            {
+                "name": "Authentication",
+                "description": "User authentication and token management endpoints.",
+            },
+            {
+                "name": "User Management",
+                "description": "User CRUD operations and role management.",
+            },
+            {
+                "name": "Shipments",
+                "description": "Shipment tracking and management endpoints.",
+            },
+            {
+                "name": "Fleet Management",
+                "description": "Fleet unit management and diagnostics.",
             },
         ],
         contact={
@@ -146,6 +168,10 @@ All endpoints return JSON responses with the following structure:
     app.include_router(root.router)
     app.include_router(health.router)
     app.include_router(docs.router)
+    app.include_router(auth.router)
+    app.include_router(users.router)
+    app.include_router(shipments.router)
+    app.include_router(fleet.router)
 
     logger.info("Application created successfully")
     return app
