@@ -72,6 +72,16 @@ class Settings(BaseSettings):
         description="Require numbers in password"
     )
 
+    # Super Admin Seeding
+    superadmin_email: str = Field(
+        default="admin@ecoroute.com",
+        description="Default superadmin email for seeding"
+    )
+    superadmin_password: str = Field(
+        default="Admin123!",
+        description="Default superadmin password for seeding"
+    )
+
     # CORS
     cors_origins: str | List[str] = Field(
         default="http://localhost:3000,http://localhost:8000",

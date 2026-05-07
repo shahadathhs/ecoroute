@@ -82,6 +82,7 @@ class Shipment(Base, TimestampMixin):
         back_populates="shipment",
         cascade="all, delete-orphan",
         order_by="ShipmentEvent.created_at.desc()",
+        overlaps="created_shipment_events",
     )
 
 
@@ -109,4 +110,4 @@ class ShipmentEvent(Base, TimestampMixin):
 
     # Relationships
     shipment = relationship("Shipment", back_populates="events")
-    creator = relationship("User", foreign_keys=[created_by])
+    creator = relationship("User", foreign_keys=[created_by], back_populates="created_shipment_events")

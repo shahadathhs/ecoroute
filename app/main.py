@@ -29,10 +29,15 @@ async def lifespan(app: FastAPI):
     logger.info(f"Debug mode: {settings.debug}")
 
     # Initialize database
-    from app.db.session import init_db
+    from app.db.session import init_db, async_session_maker
+    from app.db.seed import seed_database
 
     await init_db()
     logger.info("Database initialized")
+
+    # Seed initial data if needed
+    async with async_session_maker() as db:
+        await seed_database(db)
 
     yield
 

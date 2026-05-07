@@ -11,7 +11,7 @@ PYTHON_BIN := uv run python
 .PHONY: help setup venv install reset-venv pre-commit-install pre-commit-run pre-commit-update
 .PHONY: build dev dev-verbose prod release-dry-run release-changelog release-publish
 .PHONY: lint lint-fix format format-check type-check check-all fix-all
-.PHONY: migrate-up migrate-down migration db-shell
+.PHONY: migrate-up migrate-down migration db-shell seed-db reset-db
 .PHONY: docker-build docker-infra docker-prod docker-down docker-logs
 .PHONY: clean shell logs sync update upgrade-all-pinned freeze list outdated check compile export why tree add remove ci info
 
@@ -138,6 +138,19 @@ migration: ## Create new migration (use NAME=name)
 db-shell: ## Open database shell
 	@echo "Opening database shell..."
 	psql $${DATABASE_URL}
+
+seed-db: ## Seed database with default admin user
+	@echo "Seeding database..."
+	$(PYTHON_BIN) -c "import asyncio; from app.db.session import async_session_maker; from app.db.seed import seed_database; asyncio.run(seed_database(async_session_maker().__anext__().__await__()))"
+
+reset-db: ## Reset database (drop all tables and reseed)
+	@echo "⚠️  WARNING: This will delete all data!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [ "$$REPLY" = "y" ]; then \
+		$(PYTHON_BIN) -c "import asyncio; from app.db.session import engine; from app.models.base import Base; asyncio.run(Base.metadata.drop_all(engine)); asyncio.run(Base.metadata.create_all(engine))"; \
+		$(MAKE) seed-db; \
+	fi
 
 # =============================================================================
 # DOCKER

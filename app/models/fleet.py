@@ -60,4 +60,4 @@ class FleetUnit(Base, TimestampMixin):
 
     # Relationships
     organization = relationship("Organization", back_populates="fleet_units")
-    current_driver = relationship("User", foreign_keys=[current_driver_id])
+    current_driver = relationship("User", foreign_keys=[current_driver_id], back_populates="assigned_fleet_units")
