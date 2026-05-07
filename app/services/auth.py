@@ -9,6 +9,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.errors import NotFoundException, UnauthorizedException
 from app.core.security import (
     create_access_token,
@@ -90,7 +91,7 @@ class AuthService:
             access_token=access_token,
             refresh_token=refresh_token,
             token_type="bearer",
-            expires_in=30 * 60,  # 30 minutes in seconds
+            expires_in=settings.jwt_access_token_expire_minutes * 60,
         )
 
     @staticmethod
@@ -146,7 +147,7 @@ class AuthService:
                 access_token=access_token,
                 refresh_token=new_refresh_token,
                 token_type="bearer",
-                expires_in=30 * 60,
+                expires_in=settings.jwt_access_token_expire_minutes * 60,
             )
 
         except ValueError as e:

@@ -127,7 +127,7 @@ class ShipmentService:
         limit: int = 100,
         status: ShipmentStatus | None = None,
         search: str | None = None,
-    ) -> list[Shipment]:
+    ) -> tuple[list[Shipment], int]:
         """List shipments in an organization with pagination and filters.
 
         Args:
@@ -139,26 +139,41 @@ class ShipmentService:
             search: Search term for tracking number or carrier
 
         Returns:
-            List of shipments
+            Tuple of (list of shipments, total count)
         """
+        from sqlalchemy import func
+
+        # Build base query for count
+        count_query = select(func.count(Shipment.id)).where(
+            Shipment.organization_id == organization_id
+        )
+
+        # Build data query
         query = select(Shipment).where(Shipment.organization_id == organization_id)
 
         if status:
             query = query.where(Shipment.status == status)
+            count_query = count_query.where(Shipment.status == status)
 
         if search:
             search_pattern = f"%{search}%"
-            query = query.where(
-                or_(
-                    Shipment.tracking_number.ilike(search_pattern),
-                    Shipment.carrier.ilike(search_pattern),
-                )
+            search_condition = or_(
+                Shipment.tracking_number.ilike(search_pattern),
+                Shipment.carrier.ilike(search_pattern),
             )
+            query = query.where(search_condition)
+            count_query = count_query.where(search_condition)
 
+        # Get total count
+        total_result = await db.execute(count_query)
+        total = total_result.scalar_one()
+
+        # Get paginated results
         query = query.order_by(Shipment.created_at.desc()).offset(skip).limit(limit)
-
         result = await db.execute(query)
-        return list(result.scalars().all())
+        shipments = list(result.scalars().all())
+
+        return shipments, total
 
     @staticmethod
     async def update_shipment_status(
@@ -184,6 +199,49 @@ class ShipmentService:
             )
 
         shipment.status = status
+        await db.commit()
+        await db.refresh(shipment)
+
+        return shipment
+
+    @staticmethod
+    async def update_shipment(
+        shipment_id: str,
+        carrier: str | None,
+        cargo_type: str | None,
+        status: ShipmentStatus | None,
+        db: AsyncSession,
+    ) -> Shipment:
+        """Update shipment details.
+
+        Args:
+            shipment_id: Shipment ID
+            carrier: New carrier value
+            cargo_type: New cargo type value
+            status: New status value
+            db: Database session
+
+        Returns:
+            Updated shipment
+
+        Raises:
+            NotFoundException: If shipment not found
+        """
+        shipment = await ShipmentService.get_shipment_by_id(shipment_id, db)
+        if not shipment:
+            raise NotFoundException(
+                message="Shipment not found", details={"shipment_id": shipment_id}
+            )
+
+        if carrier is not None:
+            shipment.carrier = carrier
+        if cargo_type is not None:
+            shipment.cargo_type = cargo_type
+
+        # Update status if provided
+        if status is not None:
+            shipment.status = status
+
         await db.commit()
         await db.refresh(shipment)
 

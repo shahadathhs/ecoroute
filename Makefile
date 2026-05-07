@@ -141,14 +141,24 @@ db-shell: ## Open database shell
 
 seed-db: ## Seed database with default admin user
 	@echo "Seeding database..."
-	$(PYTHON_BIN) -c "import asyncio; from app.db.session import async_session_maker; from app.db.seed import seed_database; asyncio.run(seed_database(async_session_maker().__anext__().__await__()))"
+	$(PYTHON_BIN) -c "import asyncio; from app.db.session import async_session_maker; \
+	from app.db.seed import seed_database; \
+	async def run(): \
+		async with async_session_maker() as db: \
+			await seed_database(db); \
+	asyncio.run(run())"
 
 reset-db: ## Reset database (drop all tables and reseed)
 	@echo "⚠️  WARNING: This will delete all data!"
 	@read -p "Are you sure? [y/N] " -n 1 -r; \
 	echo; \
 	if [ "$$REPLY" = "y" ]; then \
-		$(PYTHON_BIN) -c "import asyncio; from app.db.session import engine; from app.models.base import Base; asyncio.run(Base.metadata.drop_all(engine)); asyncio.run(Base.metadata.create_all(engine))"; \
+		$(PYTHON_BIN) -c "import asyncio; from app.db.session import engine; from app.models.base import Base; \
+		async def reset(): \
+			async with engine.begin() as conn: \
+				await conn.run_sync(Base.metadata.drop_all); \
+				await conn.run_sync(Base.metadata.create_all); \
+		asyncio.run(reset())"; \
 		$(MAKE) seed-db; \
 	fi
 

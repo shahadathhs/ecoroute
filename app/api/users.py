@@ -144,6 +144,9 @@ async def get_users(
         search=search,
     )
 
+    # Unpack users and total count
+    users_list, total = users
+
     # Convert to UserData
     users_data = [
         UserData(
@@ -157,11 +160,8 @@ async def get_users(
             created_at=user.created_at,
             updated_at=user.updated_at,
         )
-        for user in users
+        for user in users_list
     ]
-
-    # Get total count (simplified - in production use COUNT query)
-    total = len(users_data)  # TODO: Implement proper count query
 
     from app.core.response import ResponseBuilder
 

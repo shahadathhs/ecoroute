@@ -80,6 +80,9 @@ async def get_shipments(
         search=search,
     )
 
+    # Unpack shipments and total count
+    shipments_list, total = shipments
+
     # Convert to ShipmentData
     shipments_data = [
         ShipmentData(
@@ -100,11 +103,8 @@ async def get_shipments(
             created_at=shipment.created_at,
             updated_at=shipment.updated_at,
         )
-        for shipment in shipments
+        for shipment in shipments_list
     ]
-
-    # TODO: Implement proper count query
-    total = len(shipments_data)
 
     return ResponseBuilder.paginated(
         data=shipments_data,
@@ -260,20 +260,14 @@ async def update_shipment(
             details={"shipment_id": shipment_id},
         )
 
-    # Update basic fields
-    if shipment_data.carrier:
-        shipment.carrier = shipment_data.carrier
-    if shipment_data.cargo_type:
-        shipment.cargo_type = shipment_data.cargo_type
-
-    # Update status if provided
-    if shipment_data.status:
-        shipment = await ShipmentService.update_shipment_status(
-            shipment_id, shipment_data.status, db
-        )
-    else:
-        await db.commit()
-        await db.refresh(shipment)
+    # Use service layer for all updates
+    shipment = await ShipmentService.update_shipment(
+        shipment_id=shipment_id,
+        carrier=shipment_data.carrier,
+        cargo_type=shipment_data.cargo_type,
+        status=shipment_data.status,
+        db=db,
+    )
 
     shipment_data_response = ShipmentData(
         id=str(shipment.id),

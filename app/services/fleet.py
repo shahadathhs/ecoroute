@@ -92,7 +92,7 @@ class FleetService:
         limit: int = 100,
         status: FleetUnitStatus | None = None,
         vehicle_type: VehicleType | None = None,
-    ) -> list[FleetUnit]:
+    ) -> tuple[list[FleetUnit], int]:
         """List fleet units in an organization with filters.
 
         Args:
@@ -104,20 +104,36 @@ class FleetService:
             vehicle_type: Filter by vehicle type
 
         Returns:
-            List of fleet units
+            Tuple of (list of fleet units, total count)
         """
+        from sqlalchemy import func
+
+        # Build base query for count
+        count_query = select(func.count(FleetUnit.id)).where(
+            FleetUnit.organization_id == organization_id
+        )
+
+        # Build data query
         query = select(FleetUnit).where(FleetUnit.organization_id == organization_id)
 
         if status:
             query = query.where(FleetUnit.status == status)
+            count_query = count_query.where(FleetUnit.status == status)
 
         if vehicle_type:
             query = query.where(FleetUnit.type == vehicle_type)
+            count_query = count_query.where(FleetUnit.type == vehicle_type)
 
+        # Get total count
+        total_result = await db.execute(count_query)
+        total = total_result.scalar_one()
+
+        # Get paginated results
         query = query.order_by(FleetUnit.created_at.desc()).offset(skip).limit(limit)
-
         result = await db.execute(query)
-        return list(result.scalars().all())
+        fleet_units = list(result.scalars().all())
+
+        return fleet_units, total
 
     @staticmethod
     async def update_fleet_unit(

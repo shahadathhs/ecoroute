@@ -77,6 +77,9 @@ async def get_fleet_units(
         vehicle_type=vehicle_type,
     )
 
+    # Unpack fleet units and total count
+    fleet_units_list, total = fleet_units
+
     # Convert to FleetUnitData
     fleet_units_data = [
         FleetUnitData(
@@ -92,11 +95,8 @@ async def get_fleet_units(
             created_at=unit.created_at,
             updated_at=unit.updated_at,
         )
-        for unit in fleet_units
+        for unit in fleet_units_list
     ]
-
-    # TODO: Implement proper count query
-    total = len(fleet_units_data)
 
     return ResponseBuilder.paginated(
         data=fleet_units_data,

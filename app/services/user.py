@@ -91,7 +91,7 @@ class UserService:
         skip: int = 0,
         limit: int = 100,
         search: str | None = None,
-    ) -> list[User]:
+    ) -> tuple[list[User], int]:
         """List users in an organization with pagination.
 
         Args:
@@ -102,23 +102,35 @@ class UserService:
             search: Search term for email or full_name
 
         Returns:
-            List of users
+            Tuple of (list of users, total count)
         """
+        from sqlalchemy import func
+
+        # Build base query for count
+        count_query = select(func.count(User.id)).where(User.organization_id == organization_id)
+
+        # Build data query
         query = select(User).where(User.organization_id == organization_id)
 
         if search:
             search_pattern = f"%{search}%"
-            query = query.where(
-                or_(
-                    User.email.ilike(search_pattern),
-                    User.full_name.ilike(search_pattern),
-                )
+            search_condition = or_(
+                User.email.ilike(search_pattern),
+                User.full_name.ilike(search_pattern),
             )
+            query = query.where(search_condition)
+            count_query = count_query.where(search_condition)
 
+        # Get total count
+        total_result = await db.execute(count_query)
+        total = total_result.scalar_one()
+
+        # Get paginated results
         query = query.order_by(User.created_at.desc()).offset(skip).limit(limit)
-
         result = await db.execute(query)
-        return list(result.scalars().all())
+        users = list(result.scalars().all())
+
+        return users, total
 
     @staticmethod
     async def update_user(user_id: str, user_data: UserUpdate, db: AsyncSession) -> User:

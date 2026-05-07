@@ -67,46 +67,6 @@ async def get_current_user(
     return await AuthService.get_current_active_user(user)
 
 
-router = APIRouter(
-    tags=["Authentication"],
-    responses={
-        200: {
-            "description": "Successful response",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status_code": 200,
-                        "success": True,
-                        "message": "Login successful",
-                        "data": {
-                            "access_token": "eyJ...",
-                            "refresh_token": "eyJ...",
-                            "token_type": "bearer",
-                            "expires_in": 1800,
-                        },
-                    }
-                }
-            },
-        },
-        401: {
-            "description": "Unauthorized",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "status_code": 401,
-                        "success": False,
-                        "message": "Invalid email or password",
-                        "data": None,
-                    }
-                }
-            },
-        },
-    },
-)
-
-security = HTTPBearer()
-
-
 @router.post(
     "/v1/auth/login",
     response_model=TokenResponseSchema,
