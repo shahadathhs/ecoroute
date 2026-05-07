@@ -100,14 +100,14 @@ lint-fix: ## Fix linting issues automatically
 	@echo "Fixing linting issues..."
 	$(PYTHON_BIN) -m ruff check --fix app/
 
-format: ## Format code with black
+format: ## Format code with ruff-format
 	@echo "Formatting code..."
-	$(PYTHON_BIN) -m black app/
+	$(PYTHON_BIN) -m ruff format app/
 	@echo "✓ Code formatted"
 
 format-check: ## Check if code needs formatting
 	@echo "Checking code formatting..."
-	$(PYTHON_BIN) -m black --check app/
+	$(PYTHON_BIN) -m ruff format --check app/
 
 type-check: ## Run type checker (mypy)
 	@echo "Running type checks..."
