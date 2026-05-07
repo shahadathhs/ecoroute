@@ -113,7 +113,7 @@ type-check: ## Run type checker (mypy)
 	@echo "Running type checks..."
 	$(PYTHON_BIN) -m mypy app/
 
-check-all: lint type-check ## Run all quality checks
+check-all: lint type-check security ## Run all quality checks
 	@echo "Running all quality checks..."
 
 fix-all: lint-fix format ## Fix all auto-fixable issues
@@ -256,7 +256,7 @@ tree: ## Show dependency tree
 # =============================================================================
 security: ## Run security scan with bandit
 	@echo "Running security scan..."
-	@uv run bandit -r app/ -f screen -v
+	@uv run bandit -c .bandit -r app/ -f screen
 	@echo "✓ Security scan complete"
 
 ci: pre-commit-run security build ## Run CI pipeline checks
