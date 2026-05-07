@@ -13,7 +13,9 @@ from app.schemas.base import DataResponse
 class FleetUnitCreate(BaseModel):
     """Fleet unit creation schema."""
 
-    unit_id: str = Field(..., min_length=1, max_length=100, description="Unique unit identifier")
+    unit_id: str = Field(
+        ..., min_length=1, max_length=100, description="Unique unit identifier"
+    )
     type: VehicleType = Field(..., description="Vehicle type")
     battery_health: float = Field(
         default=1.0, ge=0, le=1, description="Battery health (0.0 to 1.0)"
@@ -64,7 +66,9 @@ class FleetDiagnostics(BaseModel):
     fuel_level: float = Field(..., description="Fuel level percentage")
     status: FleetUnitStatus = Field(..., description="Current status")
     last_maintenance: date | None = Field(None, description="Last maintenance date")
-    days_since_maintenance: int | None = Field(None, description="Days since last maintenance")
+    days_since_maintenance: int | None = Field(
+        None, description="Days since last maintenance"
+    )
     needs_maintenance: bool = Field(..., description="Whether maintenance is needed")
     current_driver: str | None = Field(None, description="Current driver name")
 

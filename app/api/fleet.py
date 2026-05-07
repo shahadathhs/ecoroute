@@ -7,7 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.users import get_current_user, require_manager
+from app.api.users import require_manager
 from app.core.response import ResponseBuilder
 from app.db.session import get_db
 from app.models.fleet import FleetUnitStatus, VehicleType
@@ -42,8 +42,12 @@ async def get_fleet_units(
     current_user: Annotated[User, Depends(require_manager)],
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
-    status_filter: FleetUnitStatus | None = Query(None, alias="status", description="Filter by status"),
-    vehicle_type: VehicleType | None = Query(None, alias="type", description="Filter by vehicle type"),
+    status_filter: FleetUnitStatus | None = Query(
+        None, alias="status", description="Filter by status"
+    ),
+    vehicle_type: VehicleType | None = Query(
+        None, alias="type", description="Filter by vehicle type"
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -55,6 +59,14 @@ async def get_fleet_units(
     - LOGISTICS_MANAGER+
     """
     skip = (page - 1) * page_size
+
+    if current_user.organization_id is None:
+        from app.core.errors import BadRequestException
+
+        raise BadRequestException(
+            message="User must belong to an organization",
+            details={"user_id": str(current_user.id)},
+        )
 
     fleet_units = await FleetService.get_fleet_units(
         organization_id=current_user.organization_id,
@@ -68,7 +80,7 @@ async def get_fleet_units(
     # Convert to FleetUnitData
     fleet_units_data = [
         FleetUnitData(
-            id=unit.id,
+            id=str(unit.id),
             unit_id=unit.unit_id,
             organization_id=unit.organization_id,
             type=unit.type,
@@ -114,6 +126,14 @@ async def create_fleet_unit(
     **Permissions Required:**
     - LOGISTICS_MANAGER+
     """
+    if current_user.organization_id is None:
+        from app.core.errors import BadRequestException
+
+        raise BadRequestException(
+            message="User must belong to an organization",
+            details={"user_id": str(current_user.id)},
+        )
+
     fleet_unit = await FleetService.create_fleet_unit(
         unit_data=unit_data,
         organization_id=current_user.organization_id,
@@ -121,7 +141,7 @@ async def create_fleet_unit(
     )
 
     fleet_unit_data = FleetUnitData(
-        id=fleet_unit.id,
+        id=str(fleet_unit.id),
         unit_id=fleet_unit.unit_id,
         organization_id=fleet_unit.organization_id,
         type=fleet_unit.type,
@@ -164,13 +184,14 @@ async def get_fleet_unit(
 
     if not fleet_unit or fleet_unit.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Fleet unit not found",
             details={"unit_id": unit_id},
         )
 
     fleet_unit_data = FleetUnitData(
-        id=fleet_unit.id,
+        id=str(fleet_unit.id),
         unit_id=fleet_unit.unit_id,
         organization_id=fleet_unit.organization_id,
         type=fleet_unit.type,
@@ -214,6 +235,7 @@ async def update_fleet_unit(
 
     if not fleet_unit or fleet_unit.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Fleet unit not found",
             details={"unit_id": unit_id},
@@ -222,7 +244,7 @@ async def update_fleet_unit(
     updated_unit = await FleetService.update_fleet_unit(unit_id, unit_data, db)
 
     fleet_unit_data = FleetUnitData(
-        id=updated_unit.id,
+        id=str(updated_unit.id),
         unit_id=updated_unit.unit_id,
         organization_id=updated_unit.organization_id,
         type=updated_unit.type,
@@ -266,6 +288,7 @@ async def get_fleet_diagnostics(
 
     if not fleet_unit or fleet_unit.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Fleet unit not found",
             details={"unit_id": unit_id},
@@ -315,6 +338,7 @@ async def assign_driver(
 
     if not fleet_unit or fleet_unit.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Fleet unit not found",
             details={"unit_id": unit_id},
@@ -327,7 +351,7 @@ async def assign_driver(
     )
 
     fleet_unit_data = FleetUnitData(
-        id=updated_unit.id,
+        id=str(updated_unit.id),
         unit_id=updated_unit.unit_id,
         organization_id=updated_unit.organization_id,
         type=updated_unit.type,

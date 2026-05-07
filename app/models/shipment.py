@@ -3,10 +3,9 @@ Shipment and ShipmentEvent Models
 """
 
 import uuid
-from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import DateTime, Enum as SQLEnum, ForeignKey, String, Text, JSON, Float
+from sqlalchemy import Enum as SQLEnum, ForeignKey, String, Text, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -38,7 +37,7 @@ class Shipment(Base, TimestampMixin):
 
     __tablename__ = "shipments"
 
-    id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[str] = mapped_column(
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
     tracking_number: Mapped[str] = mapped_column(
@@ -53,8 +52,12 @@ class Shipment(Base, TimestampMixin):
 
     # Origin information
     origin_city: Mapped[str] = mapped_column(String(255), nullable=False)
-    origin_code: Mapped[str] = mapped_column(String(50), nullable=False)  # Airport/port code
-    origin_coords: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # {"lat": 0, "lng": 0}
+    origin_code: Mapped[str] = mapped_column(
+        String(50), nullable=False
+    )  # Airport/port code
+    origin_coords: Mapped[dict | None] = mapped_column(
+        JSON, nullable=True
+    )  # {"lat": 0, "lng": 0}
 
     # Destination information
     destination_city: Mapped[str] = mapped_column(String(255), nullable=False)
@@ -91,7 +94,7 @@ class ShipmentEvent(Base, TimestampMixin):
 
     __tablename__ = "shipment_events"
 
-    id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[str] = mapped_column(
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
     shipment_id: Mapped[str] = mapped_column(
@@ -110,4 +113,6 @@ class ShipmentEvent(Base, TimestampMixin):
 
     # Relationships
     shipment = relationship("Shipment", back_populates="events")
-    creator = relationship("User", foreign_keys=[created_by], back_populates="created_shipment_events")
+    creator = relationship(
+        "User", foreign_keys=[created_by], back_populates="created_shipment_events"
+    )

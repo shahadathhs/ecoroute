@@ -6,7 +6,7 @@ import uuid
 from datetime import date
 from enum import Enum
 
-from sqlalchemy import Boolean, Date, Enum as SQLEnum, ForeignKey, String, Float
+from sqlalchemy import Date, Enum as SQLEnum, ForeignKey, String, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -34,16 +34,16 @@ class FleetUnit(Base, TimestampMixin):
 
     __tablename__ = "fleet_units"
 
-    id: Mapped[uuid.UUID] = mapped_column(
+    id: Mapped[str] = mapped_column(
         String(36), primary_key=True, default=lambda: str(uuid.uuid4())
     )
-    unit_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
+    unit_id: Mapped[str] = mapped_column(
+        String(100), unique=True, nullable=False, index=True
+    )
     organization_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("organizations.id"), nullable=False, index=True
     )
-    type: Mapped[VehicleType] = mapped_column(
-        SQLEnum(VehicleType), nullable=False
-    )
+    type: Mapped[VehicleType] = mapped_column(SQLEnum(VehicleType), nullable=False)
     battery_health: Mapped[float] = mapped_column(
         Float, default=1.0, nullable=False
     )  # 0.0 to 1.0
@@ -60,4 +60,6 @@ class FleetUnit(Base, TimestampMixin):
 
     # Relationships
     organization = relationship("Organization", back_populates="fleet_units")
-    current_driver = relationship("User", foreign_keys=[current_driver_id], back_populates="assigned_fleet_units")
+    current_driver = relationship(
+        "User", foreign_keys=[current_driver_id], back_populates="assigned_fleet_units"
+    )

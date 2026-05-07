@@ -11,7 +11,6 @@ from app.db.session import get_db
 from app.models.user import User
 from app.schemas.auth import (
     LoginRequest,
-    TokenResponse,
     TokenResponseSchema,
     RefreshTokenRequest,
 )
@@ -66,6 +65,7 @@ async def get_current_user(
     token = credentials.credentials
     user = await AuthService.get_current_user_from_token(token, db)
     return await AuthService.get_current_active_user(user)
+
 
 router = APIRouter(
     tags=["Authentication"],
@@ -267,7 +267,7 @@ async def get_current_user_info(
     """
     # Convert User to UserData
     user_data = UserData(
-        id=current_user.id,
+        id=str(current_user.id),
         email=current_user.email,
         full_name=current_user.full_name,
         role=current_user.role,

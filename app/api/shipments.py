@@ -43,8 +43,12 @@ async def get_shipments(
     current_user: Annotated[User, Depends(require_manager)],
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(10, ge=1, le=100, description="Items per page"),
-    status_filter: ShipmentStatus | None = Query(None, alias="status", description="Filter by status"),
-    search: str | None = Query(None, description="Search by tracking number or carrier"),
+    status_filter: ShipmentStatus | None = Query(
+        None, alias="status", description="Filter by status"
+    ),
+    search: str | None = Query(
+        None, description="Search by tracking number or carrier"
+    ),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -61,6 +65,14 @@ async def get_shipments(
     """
     skip = (page - 1) * page_size
 
+    if current_user.organization_id is None:
+        from app.core.errors import BadRequestException
+
+        raise BadRequestException(
+            message="User must belong to an organization",
+            details={"user_id": str(current_user.id)},
+        )
+
     shipments = await ShipmentService.get_shipments(
         organization_id=current_user.organization_id,
         db=db,
@@ -73,7 +85,7 @@ async def get_shipments(
     # Convert to ShipmentData
     shipments_data = [
         ShipmentData(
-            id=shipment.id,
+            id=str(shipment.id),
             tracking_number=shipment.tracking_number,
             status=shipment.status,
             organization_id=shipment.organization_id,
@@ -125,6 +137,14 @@ async def create_shipment(
     - LOGISTICS_MANAGER
     - STANDARD_DISPATCHER
     """
+    if current_user.organization_id is None:
+        from app.core.errors import BadRequestException
+
+        raise BadRequestException(
+            message="User must belong to an organization",
+            details={"user_id": str(current_user.id)},
+        )
+
     shipment = await ShipmentService.create_shipment(
         shipment_data=shipment_data,
         organization_id=current_user.organization_id,
@@ -132,7 +152,7 @@ async def create_shipment(
     )
 
     shipment_data_response = ShipmentData(
-        id=shipment.id,
+        id=str(shipment.id),
         tracking_number=shipment.tracking_number,
         status=shipment.status,
         organization_id=shipment.organization_id,
@@ -180,13 +200,14 @@ async def get_shipment(
 
     if not shipment or shipment.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Shipment not found",
             details={"shipment_id": shipment_id},
         )
 
     shipment_data = ShipmentData(
-        id=shipment.id,
+        id=str(shipment.id),
         tracking_number=shipment.tracking_number,
         status=shipment.status,
         organization_id=shipment.organization_id,
@@ -235,6 +256,7 @@ async def update_shipment(
 
     if not shipment or shipment.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Shipment not found",
             details={"shipment_id": shipment_id},
@@ -256,7 +278,7 @@ async def update_shipment(
         await db.refresh(shipment)
 
     shipment_data_response = ShipmentData(
-        id=shipment.id,
+        id=str(shipment.id),
         tracking_number=shipment.tracking_number,
         status=shipment.status,
         organization_id=shipment.organization_id,
@@ -306,6 +328,7 @@ async def add_shipment_event(
 
     if not shipment or shipment.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Shipment not found",
             details={"shipment_id": shipment_id},
@@ -314,12 +337,12 @@ async def add_shipment_event(
     event = await ShipmentService.add_shipment_event(
         shipment_id=shipment_id,
         event_data=event_data,
-        created_by=current_user.id,
+        created_by=str(current_user.id),
         db=db,
     )
 
     event_data_response = ShipmentEventData(
-        id=event.id,
+        id=str(event.id),
         shipment_id=event.shipment_id,
         event_type=event.event_type,
         location=event.location,
@@ -360,6 +383,7 @@ async def update_shipment_location(
 
     if not shipment or shipment.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="Shipment not found",
             details={"shipment_id": shipment_id},
@@ -372,7 +396,7 @@ async def update_shipment_location(
     )
 
     shipment_data = ShipmentData(
-        id=updated_shipment.id,
+        id=str(updated_shipment.id),
         tracking_number=updated_shipment.tracking_number,
         status=updated_shipment.status,
         organization_id=updated_shipment.organization_id,

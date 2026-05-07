@@ -5,6 +5,7 @@ Creates initial data for the application including a default superadmin user and
 """
 
 import uuid
+from typing import cast
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import Organization, User, UserRole, SubscriptionTier
@@ -29,24 +30,23 @@ async def seed_database(db: AsyncSession) -> None:
     result = await db.execute(
         select(func.count(User.id)).where(User.email == settings.superadmin_email)
     )
-    superadmin_exists = result.scalar() > 0
-
-    if superadmin_exists:
-        logger.info(f"Superadmin user ({settings.superadmin_email}) already exists - skipping seed")
+    count: int | None = result.scalar_one()
+    if count and count > 0:
+        logger.info(
+            f"Superadmin user ({settings.superadmin_email}) already exists - skipping seed"
+        )
         return
 
     logger.info("Seeding database with initial data...")
 
     # Check if we need to create an organization or find existing one
     result = await db.execute(select(func.count(Organization.id)))
-    org_count = result.scalar()
+    org_count: int | None = result.scalar()
 
-    if org_count > 0:
+    if org_count and org_count > 0:
         # Use existing organization
-        result = await db.execute(
-            select(Organization).limit(1)
-        )
-        organization = result.scalar_one()
+        result = await db.execute(select(Organization).limit(1))
+        organization = cast(Organization, result.scalar_one())
         logger.info(f"Using existing organization: {organization.name}")
     else:
         # Create default organization
@@ -76,9 +76,9 @@ async def seed_database(db: AsyncSession) -> None:
     db.add(superadmin)
     await db.commit()
 
-    logger.info(f"✓ Database seeded successfully!")
+    logger.info("✓ Database seeded successfully!")
     logger.info(f"  Organization: {organization.name} (ID: {organization.id})")
     logger.info(f"  Superadmin email: {settings.superadmin_email}")
     logger.info(f"  Superadmin password: {settings.superadmin_password}")
-    logger.warning(f"  ⚠️  Please change the default password after first login!")
-    logger.warning(f"  ⚠️  Login at: POST /v1/auth/login")
+    logger.warning("  ⚠️  Please change the default password after first login!")
+    logger.warning("  ⚠️  Login at: POST /v1/auth/login")

@@ -48,38 +48,31 @@ class Settings(BaseSettings):
 
     # JWT Configuration
     jwt_secret_key: str = Field(
-        default="your-jwt-secret-key-change-in-production",
-        description="JWT secret key"
+        default="your-jwt-secret-key-change-in-production", description="JWT secret key"
     )
     jwt_algorithm: str = Field(default="HS256", description="JWT algorithm")
     jwt_access_token_expire_minutes: int = Field(
-        default=30,
-        description="JWT access token expiration time in minutes"
+        default=30, description="JWT access token expiration time in minutes"
     )
     jwt_refresh_token_expire_days: int = Field(
-        default=7,
-        description="JWT refresh token expiration time in days"
+        default=7, description="JWT refresh token expiration time in days"
     )
 
     # Password Policy
     password_min_length: int = Field(default=8, description="Minimum password length")
     password_require_uppercase: bool = Field(
-        default=True,
-        description="Require uppercase letters in password"
+        default=True, description="Require uppercase letters in password"
     )
     password_require_numbers: bool = Field(
-        default=True,
-        description="Require numbers in password"
+        default=True, description="Require numbers in password"
     )
 
     # Super Admin Seeding
     superadmin_email: str = Field(
-        default="admin@ecoroute.com",
-        description="Default superadmin email for seeding"
+        default="admin@ecoroute.com", description="Default superadmin email for seeding"
     )
     superadmin_password: str = Field(
-        default="Admin123!",
-        description="Default superadmin password for seeding"
+        default="Admin123!", description="Default superadmin password for seeding"
     )
 
     # CORS

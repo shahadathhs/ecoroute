@@ -8,13 +8,17 @@ import uuid
 from datetime import datetime
 from typing import List
 
-from sqlalchemy import select, and_, or_
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
-from app.core.errors import BadRequestException, NotFoundException
-from app.models.shipment import Shipment, ShipmentEvent, ShipmentStatus, ShipmentEventType
-from app.schemas.shipment import ShipmentCreate, ShipmentUpdate, ShipmentEventCreate
+from app.core.errors import NotFoundException
+from app.models.shipment import (
+    Shipment,
+    ShipmentEvent,
+    ShipmentStatus,
+    ShipmentEventType,
+)
+from app.schemas.shipment import ShipmentCreate, ShipmentEventCreate
 
 
 class ShipmentService:
@@ -33,9 +37,7 @@ class ShipmentService:
 
     @staticmethod
     async def create_shipment(
-        shipment_data: ShipmentCreate,
-        organization_id: str,
-        db: AsyncSession
+        shipment_data: ShipmentCreate, organization_id: str, db: AsyncSession
     ) -> Shipment:
         """Create a new shipment.
 
@@ -78,10 +80,10 @@ class ShipmentService:
             ShipmentEventCreate(
                 event_type=ShipmentEventType.CREATED,
                 location=shipment_data.origin_coords,
-                notes="Shipment created"
+                notes="Shipment created",
             ),
             None,  # No user context for initial creation
-            db
+            db,
         )
 
         return shipment
@@ -97,15 +99,12 @@ class ShipmentService:
         Returns:
             Shipment or None if not found
         """
-        result = await db.execute(
-            select(Shipment).where(Shipment.id == shipment_id)
-        )
+        result = await db.execute(select(Shipment).where(Shipment.id == shipment_id))
         return result.scalar_one_or_none()
 
     @staticmethod
     async def get_shipment_by_tracking_number(
-        tracking_number: str,
-        db: AsyncSession
+        tracking_number: str, db: AsyncSession
     ) -> Shipment | None:
         """Get shipment by tracking number.
 
@@ -128,7 +127,7 @@ class ShipmentService:
         skip: int = 0,
         limit: int = 100,
         status: ShipmentStatus | None = None,
-        search: str | None = None
+        search: str | None = None,
     ) -> List[Shipment]:
         """List shipments in an organization with pagination and filters.
 
@@ -153,7 +152,7 @@ class ShipmentService:
             query = query.where(
                 or_(
                     Shipment.tracking_number.ilike(search_pattern),
-                    Shipment.carrier.ilike(search_pattern)
+                    Shipment.carrier.ilike(search_pattern),
                 )
             )
 
@@ -164,9 +163,7 @@ class ShipmentService:
 
     @staticmethod
     async def update_shipment_status(
-        shipment_id: str,
-        status: ShipmentStatus,
-        db: AsyncSession
+        shipment_id: str, status: ShipmentStatus, db: AsyncSession
     ) -> Shipment:
         """Update shipment status.
 
@@ -184,8 +181,7 @@ class ShipmentService:
         shipment = await ShipmentService.get_shipment_by_id(shipment_id, db)
         if not shipment:
             raise NotFoundException(
-                message="Shipment not found",
-                details={"shipment_id": shipment_id}
+                message="Shipment not found", details={"shipment_id": shipment_id}
             )
 
         shipment.status = status
@@ -199,7 +195,7 @@ class ShipmentService:
         shipment_id: str,
         event_data: ShipmentEventCreate,
         created_by: str | None,
-        db: AsyncSession
+        db: AsyncSession,
     ) -> ShipmentEvent:
         """Add an event to a shipment.
 
@@ -218,8 +214,7 @@ class ShipmentService:
         shipment = await ShipmentService.get_shipment_by_id(shipment_id, db)
         if not shipment:
             raise NotFoundException(
-                message="Shipment not found",
-                details={"shipment_id": shipment_id}
+                message="Shipment not found", details={"shipment_id": shipment_id}
             )
 
         event = ShipmentEvent(
@@ -249,9 +244,7 @@ class ShipmentService:
 
     @staticmethod
     async def update_location(
-        shipment_id: str,
-        location: dict,
-        db: AsyncSession
+        shipment_id: str, location: dict, db: AsyncSession
     ) -> Shipment:
         """Update shipment current location.
 
@@ -269,8 +262,7 @@ class ShipmentService:
         shipment = await ShipmentService.get_shipment_by_id(shipment_id, db)
         if not shipment:
             raise NotFoundException(
-                message="Shipment not found",
-                details={"shipment_id": shipment_id}
+                message="Shipment not found", details={"shipment_id": shipment_id}
             )
 
         shipment.current_location = location
@@ -292,10 +284,10 @@ class ShipmentService:
         """
         # Emission factors (kg CO2 per km)
         emission_factors = {
-            "EV_SEMI": 0.05,       # Electric: emissions from electricity generation
-            "DIESEL_TRUCK": 0.8,   # Diesel: high emissions
-            "HYBRID_VAN": 0.4,     # Hybrid: moderate emissions
-            "DRONE": 0.02,         # Drone: very low emissions
+            "EV_SEMI": 0.05,  # Electric: emissions from electricity generation
+            "DIESEL_TRUCK": 0.8,  # Diesel: high emissions
+            "HYBRID_VAN": 0.4,  # Hybrid: moderate emissions
+            "DRONE": 0.02,  # Drone: very low emissions
         }
 
         factor = emission_factors.get(vehicle_type, 0.5)  # Default to 0.5

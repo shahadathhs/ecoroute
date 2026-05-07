@@ -2,7 +2,12 @@
 
 from app.models.base import Base, TimestampMixin
 from app.models.user import Organization, User, UserRole, SubscriptionTier
-from app.models.shipment import Shipment, ShipmentEvent, ShipmentStatus, ShipmentEventType
+from app.models.shipment import (
+    Shipment,
+    ShipmentEvent,
+    ShipmentStatus,
+    ShipmentEventType,
+)
 from app.models.fleet import FleetUnit, VehicleType, FleetUnitStatus
 
 __all__ = [

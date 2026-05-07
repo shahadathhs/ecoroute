@@ -73,8 +73,7 @@ class RoleChecker:
         self.roles = roles
 
     def __call__(
-        self,
-        current_user: Annotated[User, Depends(get_current_user)]
+        self, current_user: Annotated[User, Depends(get_current_user)]
     ) -> User:
         if current_user.role not in self.roles:
             raise ForbiddenException(
@@ -131,6 +130,14 @@ async def get_users(
     """
     skip = (page - 1) * page_size
 
+    if current_user.organization_id is None:
+        from app.core.errors import BadRequestException
+
+        raise BadRequestException(
+            message="User must belong to an organization",
+            details={"user_id": str(current_user.id)},
+        )
+
     users = await UserService.get_users(
         organization_id=current_user.organization_id,
         db=db,
@@ -142,7 +149,7 @@ async def get_users(
     # Convert to UserData
     users_data = [
         UserData(
-            id=user.id,
+            id=str(user.id),
             email=user.email,
             full_name=user.full_name,
             role=user.role,
@@ -158,7 +165,7 @@ async def get_users(
     # Get total count (simplified - in production use COUNT query)
     total = len(users_data)  # TODO: Implement proper count query
 
-    from app.core.response import ResponseBuilder, MetaData
+    from app.core.response import ResponseBuilder
 
     return ResponseBuilder.paginated(
         data=users_data,
@@ -203,12 +210,19 @@ async def create_user(
     - COMPANY_ADMIN
     """
     # Set organization_id to current user's organization
+    if current_user.organization_id is None:
+        from app.core.errors import BadRequestException
+
+        raise BadRequestException(
+            message="User must belong to an organization",
+            details={"user_id": str(current_user.id)},
+        )
     user_data.organization_id = current_user.organization_id
 
     user = await UserService.create_user(user_data, db)
 
-    user_data = UserData(
-        id=user.id,
+    created_user_data = UserData(
+        id=str(user.id),
         email=user.email,
         full_name=user.full_name,
         role=user.role,
@@ -222,7 +236,7 @@ async def create_user(
     from app.core.response import ResponseBuilder
 
     return ResponseBuilder.success(
-        data=user_data,
+        data=created_user_data,
         message="User created successfully",
         status_code=status.HTTP_201_CREATED,
     )
@@ -252,13 +266,14 @@ async def get_user(
 
     if not user or user.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="User not found",
             details={"user_id": user_id},
         )
 
     user_data = UserData(
-        id=user.id,
+        id=str(user.id),
         email=user.email,
         full_name=user.full_name,
         role=user.role,
@@ -303,6 +318,7 @@ async def update_user(
 
     if not user or user.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="User not found",
             details={"user_id": user_id},
@@ -311,7 +327,7 @@ async def update_user(
     updated_user = await UserService.update_user(user_id, user_data, db)
 
     user_data_response = UserData(
-        id=updated_user.id,
+        id=str(updated_user.id),
         email=updated_user.email,
         full_name=updated_user.full_name,
         role=updated_user.role,
@@ -367,6 +383,14 @@ async def invite_user(
     - In production, this would send an email with the temporary password
     - For now, the password is logged but not sent
     """
+    if current_user.organization_id is None:
+        from app.core.errors import BadRequestException
+
+        raise BadRequestException(
+            message="User must belong to an organization",
+            details={"user_id": str(current_user.id)},
+        )
+
     user = await UserService.invite_user(
         email=invite_data.email,
         role=invite_data.role,
@@ -375,7 +399,7 @@ async def invite_user(
     )
 
     user_data = UserData(
-        id=user.id,
+        id=str(user.id),
         email=user.email,
         full_name=user.full_name,
         role=user.role,
@@ -420,17 +444,22 @@ async def update_user_role(
 
     if not user or user.organization_id != current_user.organization_id:
         from app.core.errors import NotFoundException
+
         raise NotFoundException(
             message="User not found",
             details={"user_id": user_id},
         )
 
     # Update role
-    update_data = UserUpdate(role=role_data.role)
+    update_data = UserUpdate(
+        full_name=user.full_name,
+        role=role_data.role,
+        is_active=user.is_active,
+    )
     updated_user = await UserService.update_user(user_id, update_data, db)
 
     user_data_response = UserData(
-        id=updated_user.id,
+        id=str(updated_user.id),
         email=updated_user.email,
         full_name=updated_user.full_name,
         role=updated_user.role,

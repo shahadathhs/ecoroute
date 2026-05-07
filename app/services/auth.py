@@ -5,18 +5,15 @@ Handles user authentication, token generation, and user session management.
 """
 
 from datetime import datetime
-from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.errors import NotFoundException, UnauthorizedException
-from app.core.response import ResponseBuilder
 from app.core.security import (
     create_access_token,
     create_refresh_token,
     decode_token,
-    hash_password,
     verify_password,
 )
 from app.models.user import User
@@ -55,9 +52,7 @@ class AuthService:
         return user
 
     @staticmethod
-    async def login(
-        email: str, password: str, db: AsyncSession
-    ) -> TokenResponse:
+    async def login(email: str, password: str, db: AsyncSession) -> TokenResponse:
         """Authenticate user and generate tokens.
 
         Args:
@@ -75,8 +70,7 @@ class AuthService:
 
         if not user:
             raise UnauthorizedException(
-                message="Invalid email or password",
-                details={"email": email}
+                message="Invalid email or password", details={"email": email}
             )
 
         # Update last login
@@ -88,7 +82,9 @@ class AuthService:
             "sub": str(user.id),
             "email": user.email,
             "role": user.role.value,
-            "organization_id": str(user.organization_id) if user.organization_id else None,
+            "organization_id": (
+                str(user.organization_id) if user.organization_id else None
+            ),
         }
 
         access_token = create_access_token(token_data)
@@ -102,9 +98,7 @@ class AuthService:
         )
 
     @staticmethod
-    async def refresh_token(
-        refresh_token: str, db: AsyncSession
-    ) -> TokenResponse:
+    async def refresh_token(refresh_token: str, db: AsyncSession) -> TokenResponse:
         """Refresh access token using refresh token.
 
         Args:
@@ -123,7 +117,7 @@ class AuthService:
             if payload.get("type") != "refresh":
                 raise UnauthorizedException(
                     message="Invalid token type",
-                    details={"expected": "refresh", "got": payload.get("type")}
+                    details={"expected": "refresh", "got": payload.get("type")},
                 )
 
             user_id = payload.get("sub")
@@ -133,9 +127,7 @@ class AuthService:
                 )
 
             # Get user
-            result = await db.execute(
-                select(User).where(User.id == user_id)
-            )
+            result = await db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
             if not user or not user.is_active:
@@ -148,7 +140,9 @@ class AuthService:
                 "sub": str(user.id),
                 "email": user.email,
                 "role": user.role.value,
-                "organization_id": str(user.organization_id) if user.organization_id else None,
+                "organization_id": (
+                    str(user.organization_id) if user.organization_id else None
+                ),
             }
 
             access_token = create_access_token(token_data)
@@ -163,14 +157,11 @@ class AuthService:
 
         except ValueError as e:
             raise UnauthorizedException(
-                message="Invalid refresh token",
-                details={"error": str(e)}
+                message="Invalid refresh token", details={"error": str(e)}
             )
 
     @staticmethod
-    async def get_current_user_from_token(
-        token: str, db: AsyncSession
-    ) -> User:
+    async def get_current_user_from_token(token: str, db: AsyncSession) -> User:
         """Get user from JWT token.
 
         Args:
@@ -198,15 +189,12 @@ class AuthService:
                 )
 
             # Get user
-            result = await db.execute(
-                select(User).where(User.id == user_id)
-            )
+            result = await db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
             if not user:
                 raise NotFoundException(
-                    message="User not found",
-                    details={"user_id": user_id}
+                    message="User not found", details={"user_id": user_id}
                 )
 
             if not user.is_active:
@@ -218,14 +206,11 @@ class AuthService:
 
         except ValueError as e:
             raise UnauthorizedException(
-                message="Invalid token",
-                details={"error": str(e)}
+                message="Invalid token", details={"error": str(e)}
             )
 
     @staticmethod
-    async def get_current_active_user(
-        current_user: User
-    ) -> User:
+    async def get_current_active_user(current_user: User) -> User:
         """Check if user is active.
 
         Args:

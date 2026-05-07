@@ -34,13 +34,10 @@ class UserService:
             BadRequestException: If email already exists
         """
         # Check if email already exists
-        result = await db.execute(
-            select(User).where(User.email == user_data.email)
-        )
+        result = await db.execute(select(User).where(User.email == user_data.email))
         if result.scalar_one_or_none():
             raise BadRequestException(
-                message="Email already registered",
-                details={"email": user_data.email}
+                message="Email already registered", details={"email": user_data.email}
             )
 
         # Create user
@@ -71,9 +68,7 @@ class UserService:
         Returns:
             User or None if not found
         """
-        result = await db.execute(
-            select(User).where(User.id == user_id)
-        )
+        result = await db.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -87,9 +82,7 @@ class UserService:
         Returns:
             User or None if not found
         """
-        result = await db.execute(
-            select(User).where(User.email == email)
-        )
+        result = await db.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -98,7 +91,7 @@ class UserService:
         db: AsyncSession,
         skip: int = 0,
         limit: int = 100,
-        search: str | None = None
+        search: str | None = None,
     ) -> List[User]:
         """List users in an organization with pagination.
 
@@ -119,7 +112,7 @@ class UserService:
             query = query.where(
                 or_(
                     User.email.ilike(search_pattern),
-                    User.full_name.ilike(search_pattern)
+                    User.full_name.ilike(search_pattern),
                 )
             )
 
@@ -148,8 +141,7 @@ class UserService:
         user = await UserService.get_user_by_id(user_id, db)
         if not user:
             raise NotFoundException(
-                message="User not found",
-                details={"user_id": user_id}
+                message="User not found", details={"user_id": user_id}
             )
 
         # Update fields
@@ -182,8 +174,7 @@ class UserService:
         user = await UserService.get_user_by_id(user_id, db)
         if not user:
             raise NotFoundException(
-                message="User not found",
-                details={"user_id": user_id}
+                message="User not found", details={"user_id": user_id}
             )
 
         user.is_active = False
@@ -193,10 +184,7 @@ class UserService:
 
     @staticmethod
     async def invite_user(
-        email: str,
-        role: UserRole,
-        organization_id: str,
-        db: AsyncSession
+        email: str, role: UserRole, organization_id: str, db: AsyncSession
     ) -> User:
         """Invite a new user (creates user with temporary password).
 
@@ -213,13 +201,10 @@ class UserService:
             BadRequestException: If email already exists
         """
         # Check if email already exists
-        result = await db.execute(
-            select(User).where(User.email == email)
-        )
+        result = await db.execute(select(User).where(User.email == email))
         if result.scalar_one_or_none():
             raise BadRequestException(
-                message="Email already registered",
-                details={"email": email}
+                message="Email already registered", details={"email": email}
             )
 
         # Generate temporary password
